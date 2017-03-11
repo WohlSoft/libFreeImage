@@ -1,0 +1,11 @@
+Makefile*
+*.o
+*.lib
+*.so
+*.user
+build-*
+debug/
+release/
+Debug/
+Release/
+
