@@ -2,10 +2,19 @@ Makefile*
 *.o
 *.lib
 *.so
+*.a
+*.pdb
+*.lib
+*.lai
 *.user
 build-*
 debug/
 release/
 Debug/
 Release/
+
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
+install_manifest.txt
 

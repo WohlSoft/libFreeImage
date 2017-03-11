@@ -24,12 +24,11 @@
 #endif 
 
 #ifdef _WIN32
-#ifdef __MINGW32__
-#include "FreeImage_misc.h"
-#else
-#include <windows.h>
-#include <io.h>
-#endif
+    #include "FreeImage_misc.h"
+    #ifndef __MINGW32__
+        #include <windows.h>
+        #include <io.h>
+    #endif
 #endif // _WIN32
 
 #include "FreeImage.h"

@@ -27,14 +27,13 @@
 #endif
 
 #ifdef _WIN32
-#ifdef __MINGW32__
-#include "FreeImage_misc.h"
+    #include "FreeImage_misc.h"
+    #ifndef __MINGW32__
+        #include <windows.h>
+        #include <io.h>
+    #endif
 #else
-#include <windows.h>
-#include <io.h>
-#endif
-#else
-#include <ctype.h>
+    #include <ctype.h>
 #endif // _WIN32
 
 #include "FreeImage.h"
