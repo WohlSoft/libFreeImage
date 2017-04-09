@@ -7,30 +7,37 @@ CONFIG  += c++11
 
 DEFINES += VER_MAJOR=3 VER_MINOR=17.0 FREEIMAGE_LITE
 
-QMAKE_CFLAGS += -std=c11
+!win*-msvc*: {
+    QMAKE_CFLAGS += -std=c11
 
-QMAKE_CFLAGS_WARN_ON = -Wall \
-                -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter \
-                -Wno-sign-compare -Wno-unused-function -Wno-implicit-function-declaration -Wno-pointer-sign \
-                -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter \
-                -Wno-parentheses -Wno-switch -Wno-unused-result -Wno-format -Wno-sign-compare -Wno-unused-value \
-                -Wno-type-limits
+    QMAKE_CFLAGS_WARN_ON = -Wall \
+                    -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter \
+                    -Wno-sign-compare -Wno-unused-function -Wno-implicit-function-declaration -Wno-pointer-sign \
+                    -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter \
+                    -Wno-parentheses -Wno-switch -Wno-unused-result -Wno-format -Wno-sign-compare -Wno-unused-value \
+                    -Wno-type-limits
 
-
-QMAKE_CXXFLAGS_WARN_ON = -Wall \
-                -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter \
-                -Wno-sign-compare -Wno-unused-function \
-                -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter  \
-                -Wno-parentheses -Wno-switch -Wno-unused-result -Wno-format -Wno-unused-value \
-                -Wno-type-limits -Wno-reorder
+    QMAKE_CXXFLAGS_WARN_ON = -Wall \
+                    -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter \
+                    -Wno-sign-compare -Wno-unused-function \
+                    -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter  \
+                    -Wno-parentheses -Wno-switch -Wno-unused-result -Wno-format -Wno-unused-value \
+                    -Wno-type-limits -Wno-reorder
+} else {
+    DEFINES += _CRT_SECURE_NO_WARNINGS
+    QMAKE_CFLAGS_WARN_ON    += /wd4244 /wd4100 /wd4996
+    QMAKE_CXXFLAGS_WARN_ON  += /wd4244 /wd4100
+}
 
 macx:{
     QMAKE_CFLAGS_WARN_ON    += -Wno-unused-const-variable -Wno-uninitialized
     QMAKE_CXXFLAGS_WARN_ON  += -Wno-unused-const-variable -Wno-uninitialized -Wno-header-guard
 } else {
-    QMAKE_CFLAGS_WARN_ON    += -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-old-style-declaration
-    QMAKE_CXXFLAGS_WARN_ON  += -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-clobbered
-    QMAKE_LFLAGS    += -Wl,-rpath=\'\$\$ORIGIN\'
+    !win*-msvc*: {
+        QMAKE_CFLAGS_WARN_ON    += -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-old-style-declaration
+        QMAKE_CXXFLAGS_WARN_ON  += -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-clobbered
+        QMAKE_LFLAGS    += -Wl,-rpath=\'\$\$ORIGIN\'
+    }
 }
 
 win32:{
