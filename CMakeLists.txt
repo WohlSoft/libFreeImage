@@ -7,10 +7,10 @@ SET(LIBPNG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/LibPNG/)
 SET(ZLIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/zlib/)
 
 ####### SET POSTFIX:
-set(CMAKE_DEBUG_POSTFIX             "Debug")
-set(CMAKE_RELEASE_POSTFIX           "Release")
-set(CMAKE_RELWITHDEBINFO_POSTFIX    "RelWithDebInfo")
-set(CMAKE_MINSIZEREL_POSTFIX        "MinSizeRel")
+set(CMAKE_DEBUG_POSTFIX             "d")
+set(CMAKE_RELEASE_POSTFIX           "")
+set(CMAKE_RELWITHDEBINFO_POSTFIX    "")
+set(CMAKE_MINSIZEREL_POSTFIX        "")
 
 ####### FREEIMAGE
 PROJECT(FreeImage)
@@ -70,7 +70,7 @@ ENDIF()
 INCLUDE_DIRECTORIES(${FREEIMAGE_DIR}/Source/)
 
 ####### SOURCE CODE
-SET(FREEIMAGE_SRC ${CMAKE_CURRENT_SOURCE_DIR} 
+SET(FREEIMAGE_SRC ${CMAKE_CURRENT_SOURCE_DIR}
                             Source/FreeImage/BitmapAccess.cpp
                             Source/FreeImage/ColorLookup.cpp
                             Source/FreeImage/FreeImage.cpp
