@@ -131,6 +131,10 @@
 #  endif
 #endif
 
+/* Workaround: Disable NEON otherwise, in THIS copy it's totalyl broken, need to update libPNG and nuke this */
+#undef PNG_ARM_NEON_OPT
+#define PNG_ARM_NEON_OPT 0
+
 #if PNG_ARM_NEON_OPT > 0
    /* NEON optimizations are to be at least considered by libpng, so enable the
     * callbacks to do this.
@@ -1928,9 +1932,14 @@ PNG_INTERNAL_FUNCTION(void, PNG_FILTER_OPTIMIZATIONS, (png_structp png_ptr,
     * the builder of libpng passes the definition of PNG_FILTER_OPTIMIZATIONS in
     * CFLAGS in place of CPPFLAGS *and* uses symbol prefixing.
     */
+/*
 PNG_INTERNAL_FUNCTION(void, png_init_filter_functions_neon,
    (png_structp png_ptr, unsigned int bpp), PNG_EMPTY);
+*/
 #endif
+
+/* WORKAROUND: Avoid this, it's BROKEN, later nuke this ancient libPNG and use newer */
+#undef PNG_FILTER_OPTIMIZATIONS
 
 /* Maintainer: Put new private prototypes here ^ */
 

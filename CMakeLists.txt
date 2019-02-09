@@ -40,6 +40,10 @@ IF(UNIX)
     ENDIF()
 ENDIF()
 
+IF(ANDROID)
+    ADD_DEFINITIONS("-DPNG_ARM_NEON_OPT=0") # Disable NEON in libPNG which is broken in current version, TODO: Update libPNG
+ENDIF()
+
 ####### COMPILER FLAGS
 set(CMAKE_CXX_STANDARD 11)
 
