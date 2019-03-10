@@ -74,7 +74,7 @@ IF(APPLE)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-const-variable -Wno-uninitialized -Wno-header-guard -fexceptions \
                                             -fvisibility=hidden -Wno-ctor-dtor-privacy -stdlib=libc++ -Wc++11-narrowing")
 ELSE()
-    IF(NOT MSVC AND NOT EMSCRIPTEN)
+    IF(NOT MSVC AND NOT EMSCRIPTEN AND NOT ANDROID)
         SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-old-style-declaration")
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-clobbered")
     ENDIF()
