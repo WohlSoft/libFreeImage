@@ -73,6 +73,11 @@ if(NOT MSVC)
                 -Wno-type-limits -Wno-reorder")
 endif()
 
+# Disable bogus MSVC warnings
+if(MSVC)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS)
+endif()
+
 if(APPLE)
     string(REGEX REPLACE "-O3" ""
         CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
