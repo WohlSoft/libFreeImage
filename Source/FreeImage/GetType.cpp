@@ -24,11 +24,11 @@
 #endif 
 
 #ifdef _WIN32
-    #include "FreeImage_misc.h"
-    #ifndef __MINGW32__
-        #include <windows.h>
-        #include <io.h>
-    #endif
+#	include "FreeImage_misc.h"
+#	ifndef __MINGW32__
+#		include <windows.h>
+#		include <io.h>
+#	endif
 #endif // _WIN32
 
 #include "FreeImage.h"
@@ -41,14 +41,14 @@
 
 FREE_IMAGE_FORMAT DLL_CALLCONV
 FreeImage_GetFileTypeFromHandle(FreeImageIO *io, fi_handle handle, int size) {
-    (void)size;
-    if (handle != NULL) {
+	(void)size;
+	if (handle != NULL) {
 		int fif_count = FreeImage_GetFIFCount();
 
 		for (int i = 0; i < fif_count; ++i) {
 			FREE_IMAGE_FORMAT fif = (FREE_IMAGE_FORMAT)i;
 			if (FreeImage_Validate(fif, io, handle)) {
-                #ifndef FREEIMAGE_LITE
+#ifndef FREEIMAGE_LITE
 				if(fif == FIF_TIFF) {
 					// many camera raw files use a TIFF signature ...
 					// ... try to revalidate against FIF_RAW (even if it breaks the code genericity)
@@ -56,7 +56,7 @@ FreeImage_GetFileTypeFromHandle(FreeImageIO *io, fi_handle handle, int size) {
 						return FIF_RAW;
 					}
 				}
-                #endif
+#endif
 				return fif;
 			}
 		}
@@ -69,14 +69,14 @@ FREE_IMAGE_FORMAT DLL_CALLCONV
 FreeImage_GetFileType(const char *filename, int size) {
 	FreeImageIO io;
 	SetDefaultIO(&io);
-	
-    #ifndef _WIN32
-    FILE *handle = fopen(filename, "rb");
-    #else
-    std::wstring fileNameW;
-    FreeImage_utf8_to_utf16(fileNameW, filename);
-    FILE *handle = _wfopen(fileNameW.c_str(), L"rb");
-    #endif
+
+#ifndef _WIN32
+	FILE *handle = fopen(filename, "rb");
+#else
+	std::wstring fileNameW;
+	FreeImage_utf8_to_utf16(fileNameW, filename);
+	FILE *handle = _wfopen(fileNameW.c_str(), L"rb");
+#endif
 
 	if (handle != NULL) {
 		FREE_IMAGE_FORMAT format = FreeImage_GetFileTypeFromHandle(&io, (fi_handle)handle, size);
@@ -91,8 +91,8 @@ FreeImage_GetFileType(const char *filename, int size) {
 
 FREE_IMAGE_FORMAT DLL_CALLCONV 
 FreeImage_GetFileTypeU(const wchar_t *filename, int size) {
-    (void)filename;(void)size;
-#ifdef _WIN32	
+	(void)filename;(void)size;
+#ifdef _WIN32
 	FreeImageIO io;
 	SetDefaultIO(&io);
 	FILE *handle = _wfopen(filename, L"rb");
