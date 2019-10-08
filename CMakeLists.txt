@@ -19,7 +19,7 @@ set(FreeImage_Defs)
 ####### DEFINES
 list(APPEND FreeImage_Defs
     "-DVER_MAJOR=3"
-    "-DVER_MINOR=17.0"
+    "-DVER_MINOR=18.0"
     -DFREEIMAGE_LITE
 )
 
@@ -163,36 +163,36 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
         FREEIMAGE_USE_INTERNAL_LIBPNG
     )
     list(APPEND FREEIMAGE_SRC
-        Source/LibPNG/png.c
-        Source/LibPNG/pngerror.c
-        Source/LibPNG/pngget.c
-        Source/LibPNG/pngmem.c
-        Source/LibPNG/pngpread.c
-        Source/LibPNG/pngread.c
-        Source/LibPNG/pngrio.c
-        Source/LibPNG/pngrtran.c
-        Source/LibPNG/pngrutil.c
-        Source/LibPNG/pngset.c
-        Source/LibPNG/pngtrans.c
-        Source/LibPNG/pngwio.c
-        Source/LibPNG/pngwrite.c
-        Source/LibPNG/pngwtran.c
-        Source/LibPNG/pngwutil.c
-        Source/ZLib/adler32.c
-        Source/ZLib/compress.c
-        Source/ZLib/crc32.c
-        Source/ZLib/deflate.c
-        Source/ZLib/gzclose.c
-        Source/ZLib/gzlib.c
-        Source/ZLib/gzread.c
-        Source/ZLib/gzwrite.c
-        Source/ZLib/infback.c
-        Source/ZLib/inffast.c
-        Source/ZLib/inflate.c
-        Source/ZLib/inftrees.c
-        Source/ZLib/trees.c
-        Source/ZLib/uncompr.c
-        Source/ZLib/zutil.c
+        Source/3rdParty/LibPNG/png.c
+        Source/3rdParty/LibPNG/pngerror.c
+        Source/3rdParty/LibPNG/pngget.c
+        Source/3rdParty/LibPNG/pngmem.c
+        Source/3rdParty/LibPNG/pngpread.c
+        Source/3rdParty/LibPNG/pngread.c
+        Source/3rdParty/LibPNG/pngrio.c
+        Source/3rdParty/LibPNG/pngrtran.c
+        Source/3rdParty/LibPNG/pngrutil.c
+        Source/3rdParty/LibPNG/pngset.c
+        Source/3rdParty/LibPNG/pngtrans.c
+        Source/3rdParty/LibPNG/pngwio.c
+        Source/3rdParty/LibPNG/pngwrite.c
+        Source/3rdParty/LibPNG/pngwtran.c
+        Source/3rdParty/LibPNG/pngwutil.c
+        Source/3rdParty/ZLib/adler32.c
+        Source/3rdParty/ZLib/compress.c
+        Source/3rdParty/ZLib/crc32.c
+        Source/3rdParty/ZLib/deflate.c
+        Source/3rdParty/ZLib/gzclose.c
+        Source/3rdParty/ZLib/gzlib.c
+        Source/3rdParty/ZLib/gzread.c
+        Source/3rdParty/ZLib/gzwrite.c
+        Source/3rdParty/ZLib/infback.c
+        Source/3rdParty/ZLib/inffast.c
+        Source/3rdParty/ZLib/inflate.c
+        Source/3rdParty/ZLib/inftrees.c
+        Source/3rdParty/ZLib/trees.c
+        Source/3rdParty/ZLib/uncompr.c
+        Source/3rdParty/ZLib/zutil.c
     )
 endif()
 

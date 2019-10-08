@@ -19,8 +19,8 @@
 // Use at your own risk!
 // ==========================================================
 
-#ifndef FREEIMAGEIO_H
-#define FREEIMAGEIO_H
+#ifndef FREEIMAGE_MAPINTROSPECTOR_H_
+#define FREEIMAGE_MAPINTROSPECTOR_H_
 
 #ifndef FREEIMAGE_H
 #include "FreeImage.h"
@@ -60,4 +60,4 @@ void SetDefaultIO(FreeImageIO *io);
 
 void SetMemoryIO(FreeImageIO *io);
 
-#endif // !FREEIMAGEIO_H
+#endif // FREEIMAGE_MAPINTROSPECTOR_H_

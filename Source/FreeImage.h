@@ -29,7 +29,7 @@
 // Version information ------------------------------------------------------
 
 #define FREEIMAGE_MAJOR_VERSION   3
-#define FREEIMAGE_MINOR_VERSION   17
+#define FREEIMAGE_MINOR_VERSION   18
 #define FREEIMAGE_RELEASE_SERIAL  0
 
 // Compiler options ---------------------------------------------------------
@@ -75,7 +75,7 @@
 // or define any of FREEIMAGE_BIGENDIAN and FREEIMAGE_LITTLEENDIAN directly
 // to specify the desired endianness.
 #if (!defined(FREEIMAGE_BIGENDIAN) && !defined(FREEIMAGE_LITTLEENDIAN))
-	#if (defined(BYTE_ORDER) && BYTE_ORDER==BIG_ENDIAN) || (defined(__BYTE_ORDER) && __BYTE_ORDER==__BIG_ENDIAN) || defined(__BIG_ENDIAN__)
+	#if (defined(BYTE_ORDER) && BYTE_ORDER==BIG_ENDIAN) || (defined(__BYTE_ORDER) && __BYTE_ORDER==__BIG_ENDIAN) || (defined(__BYTE_ORDER) && __BYTE_ORDER==__ORDER_BIG_ENDIAN__) || defined(__BIG_ENDIAN__)
 		#define FREEIMAGE_BIGENDIAN
 	#endif // BYTE_ORDER
 #endif // !FREEIMAGE_[BIG|LITTLE]ENDIAN
@@ -398,7 +398,7 @@ FI_ENUM(FREE_IMAGE_FORMAT) {
 	FIF_JNG		= 3,
 	FIF_KOALA	= 4,
 	FIF_LBM		= 5,
-	FIF_IFF = FIF_LBM,
+	FIF_IFF		= FIF_LBM,
 	FIF_MNG		= 6,
 	FIF_PBM		= 7,
 	FIF_PBMRAW	= 8,
@@ -418,7 +418,7 @@ FI_ENUM(FREE_IMAGE_FORMAT) {
 	FIF_XBM		= 22,
 	FIF_XPM		= 23,
 	FIF_DDS		= 24,
-    FIF_GIF     = 25,
+	FIF_GIF		= 25,
 	FIF_HDR		= 26,
 	FIF_FAXG3	= 27,
 	FIF_SGI		= 28,
@@ -431,8 +431,8 @@ FI_ENUM(FREE_IMAGE_FORMAT) {
 	FIF_WEBP	= 35,
 	FIF_JXR		= 36
 #else
-    FIF_PNG		= 2,
-    FIF_GIF     = 3
+	FIF_PNG		= 2,
+	FIF_GIF     = 3
 #endif
 };
 
@@ -458,9 +458,9 @@ FI_ENUM(FREE_IMAGE_TYPE) {
 */
 FI_ENUM(FREE_IMAGE_COLOR_TYPE) {
 	FIC_MINISWHITE = 0,		//! min value is white
-    FIC_MINISBLACK = 1,		//! min value is black
-    FIC_RGB        = 2,		//! RGB color model
-    FIC_PALETTE    = 3,		//! color map indexed
+	FIC_MINISBLACK = 1,		//! min value is black
+	FIC_RGB        = 2,		//! RGB color model
+	FIC_PALETTE    = 3,		//! color map indexed
 	FIC_RGBALPHA   = 4,		//! RGB color model with alpha channel
 	FIC_CMYK       = 5		//! CMYK color model
 };
@@ -469,8 +469,8 @@ FI_ENUM(FREE_IMAGE_COLOR_TYPE) {
 Constants used in FreeImage_ColorQuantize.
 */
 FI_ENUM(FREE_IMAGE_QUANTIZE) {
-    FIQ_WUQUANT = 0,		//! Xiaolin Wu color quantization algorithm
-    FIQ_NNQUANT = 1,		//! NeuQuant neural-net quantization algorithm by Anthony Dekker
+	FIQ_WUQUANT = 0,		//! Xiaolin Wu color quantization algorithm
+	FIQ_NNQUANT = 1,		//! NeuQuant neural-net quantization algorithm by Anthony Dekker
 	FIQ_LFPQUANT = 2		//! Lossless Fast Pseudo-Quantization Algorithm by Carsten Klein
 };
 
@@ -478,7 +478,7 @@ FI_ENUM(FREE_IMAGE_QUANTIZE) {
 Constants used in FreeImage_Dither.
 */
 FI_ENUM(FREE_IMAGE_DITHER) {
-    FID_FS			= 0,	//! Floyd & Steinberg error diffusion
+	FID_FS			= 0,	//! Floyd & Steinberg error diffusion
 	FID_BAYER4x4	= 1,	//! Bayer ordered dispersed dot dithering (order 2 dithering matrix)
 	FID_BAYER8x8	= 2,	//! Bayer ordered dispersed dot dithering (order 3 dithering matrix)
 	FID_CLUSTER6x6	= 3,	//! Ordered clustered dot dithering (order 3 - 6x6 matrix)
@@ -505,7 +505,7 @@ FI_ENUM(FREE_IMAGE_JPEG_OPERATION) {
 Constants used in FreeImage_ToneMapping.
 */
 FI_ENUM(FREE_IMAGE_TMO) {
-    FITMO_DRAGO03	 = 0,	//! Adaptive logarithmic mapping (F. Drago, 2003)
+	FITMO_DRAGO03	 = 0,	//! Adaptive logarithmic mapping (F. Drago, 2003)
 	FITMO_REINHARD05 = 1,	//! Dynamic range reduction inspired by photoreceptor physiology (E. Reinhard, 2005)
 	FITMO_FATTAL02	 = 2	//! Gradient domain high dynamic range compression (R. Fattal, 2002)
 };
@@ -745,6 +745,9 @@ typedef void (DLL_CALLCONV *FI_InitProc)(Plugin *plugin, int format_id);
 #define PSD_DEFAULT         0
 #define PSD_CMYK			1		//! reads tags for separated CMYK (default is conversion to RGB)
 #define PSD_LAB				2		//! reads tags for CIELab (default is conversion to RGB)
+#define PSD_NONE			0x0100	//! save without any compression
+#define PSD_RLE				0x0200	//! save using RLE compression
+#define PSD_PSB             0x2000  //! save using Adobe Large Document Format (use | to combine with other save flags)
 #define RAS_DEFAULT         0
 #define RAW_DEFAULT         0		//! load the file as linear RGB 48-bit
 #define RAW_PREVIEW			1		//! try to load the embedded JPEG preview with included Exif Data or default to RGB 24-bit
@@ -887,12 +890,17 @@ DLL_API void DLL_CALLCONV FreeImage_UnlockPage(FIMULTIBITMAP *bitmap, FIBITMAP *
 DLL_API BOOL DLL_CALLCONV FreeImage_MovePage(FIMULTIBITMAP *bitmap, int target, int source);
 DLL_API BOOL DLL_CALLCONV FreeImage_GetLockedPageNumbers(FIMULTIBITMAP *bitmap, int *pages, int *count);
 
-// Filetype request routines ------------------------------------------------
+// File type request routines ------------------------------------------------
 
 DLL_API FREE_IMAGE_FORMAT DLL_CALLCONV FreeImage_GetFileType(const char *filename, int size FI_DEFAULT(0));
 DLL_API FREE_IMAGE_FORMAT DLL_CALLCONV FreeImage_GetFileTypeU(const wchar_t *filename, int size FI_DEFAULT(0));
 DLL_API FREE_IMAGE_FORMAT DLL_CALLCONV FreeImage_GetFileTypeFromHandle(FreeImageIO *io, fi_handle handle, int size FI_DEFAULT(0));
 DLL_API FREE_IMAGE_FORMAT DLL_CALLCONV FreeImage_GetFileTypeFromMemory(FIMEMORY *stream, int size FI_DEFAULT(0));
+
+DLL_API BOOL DLL_CALLCONV FreeImage_Validate(FREE_IMAGE_FORMAT fif, const char *filename);
+DLL_API BOOL DLL_CALLCONV FreeImage_ValidateU(FREE_IMAGE_FORMAT fif, const wchar_t *filename);
+DLL_API BOOL DLL_CALLCONV FreeImage_ValidateFromHandle(FREE_IMAGE_FORMAT fif, FreeImageIO *io, fi_handle handle);
+DLL_API BOOL DLL_CALLCONV FreeImage_ValidateFromMemory(FREE_IMAGE_FORMAT fif, FIMEMORY *stream);
 
 // Image type request routine -----------------------------------------------
 
@@ -993,8 +1001,11 @@ DLL_API void DLL_CALLCONV FreeImage_ConvertLine16To24_555(BYTE *target, BYTE *so
 DLL_API void DLL_CALLCONV FreeImage_ConvertLine16To24_565(BYTE *target, BYTE *source, int width_in_pixels);
 DLL_API void DLL_CALLCONV FreeImage_ConvertLine32To24(BYTE *target, BYTE *source, int width_in_pixels);
 DLL_API void DLL_CALLCONV FreeImage_ConvertLine1To32(BYTE *target, BYTE *source, int width_in_pixels, RGBQUAD *palette);
+DLL_API void DLL_CALLCONV FreeImage_ConvertLine1To32MapTransparency(BYTE *target, BYTE *source, int width_in_pixels, RGBQUAD *palette, BYTE *table, int transparent_pixels);
 DLL_API void DLL_CALLCONV FreeImage_ConvertLine4To32(BYTE *target, BYTE *source, int width_in_pixels, RGBQUAD *palette);
+DLL_API void DLL_CALLCONV FreeImage_ConvertLine4To32MapTransparency(BYTE *target, BYTE *source, int width_in_pixels, RGBQUAD *palette, BYTE *table, int transparent_pixels);
 DLL_API void DLL_CALLCONV FreeImage_ConvertLine8To32(BYTE *target, BYTE *source, int width_in_pixels, RGBQUAD *palette);
+DLL_API void DLL_CALLCONV FreeImage_ConvertLine8To32MapTransparency(BYTE *target, BYTE *source, int width_in_pixels, RGBQUAD *palette, BYTE *table, int transparent_pixels);
 DLL_API void DLL_CALLCONV FreeImage_ConvertLine16To32_555(BYTE *target, BYTE *source, int width_in_pixels);
 DLL_API void DLL_CALLCONV FreeImage_ConvertLine16To32_565(BYTE *target, BYTE *source, int width_in_pixels);
 DLL_API void DLL_CALLCONV FreeImage_ConvertLine24To32(BYTE *target, BYTE *source, int width_in_pixels);
@@ -1106,8 +1117,6 @@ DLL_API BOOL DLL_CALLCONV FreeImage_JPEGTransformCombinedFromMemory(FIMEMORY* sr
 // --------------------------------------------------------------------------
 
 // rotation and flipping
-/// @deprecated see FreeImage_Rotate
-DLL_API FIBITMAP *DLL_CALLCONV FreeImage_RotateClassic(FIBITMAP *dib, double angle);
 DLL_API FIBITMAP *DLL_CALLCONV FreeImage_Rotate(FIBITMAP *dib, double angle, const void *bkcolor FI_DEFAULT(NULL));
 DLL_API FIBITMAP *DLL_CALLCONV FreeImage_RotateEx(FIBITMAP *dib, double angle, double x_shift, double y_shift, double x_origin, double y_origin, BOOL use_mask);
 DLL_API BOOL DLL_CALLCONV FreeImage_FlipHorizontal(FIBITMAP *dib);

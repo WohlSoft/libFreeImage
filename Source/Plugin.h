@@ -97,7 +97,7 @@ int FreeImage_stricmp(const char *s1, const char *s2);
 // ==========================================================
 
 extern "C" {
-	BOOL DLL_CALLCONV FreeImage_Validate(FREE_IMAGE_FORMAT fif, FreeImageIO *io, fi_handle handle);
+	BOOL DLL_CALLCONV FreeImage_ValidateFIF(FREE_IMAGE_FORMAT fif, FreeImageIO *io, fi_handle handle);
     void * DLL_CALLCONV FreeImage_Open(PluginNode *node, FreeImageIO *io, fi_handle handle, BOOL open_for_reading);
     void DLL_CALLCONV FreeImage_Close(PluginNode *node, FreeImageIO *io, fi_handle handle, void *data); // plugin.cpp
     PluginList * DLL_CALLCONV FreeImage_GetPluginList(); // plugin.cpp
@@ -108,11 +108,11 @@ extern "C" {
 // ==========================================================
 
 void DLL_CALLCONV InitBMP(Plugin *plugin, int format_id);
-#ifndef FREEIMAGE_LITE //Don't include those fomrmats into "LITE" assembly
+#ifndef FREEIMAGE_LITE //Don't include those formats into "LITE" assembly
 void DLL_CALLCONV InitCUT(Plugin *plugin, int format_id);
 #endif
 void DLL_CALLCONV InitICO(Plugin *plugin, int format_id);
-#ifndef FREEIMAGE_LITE //Don't include those fomrmats into "LITE" assembly
+#ifndef FREEIMAGE_LITE //Don't include those formats into "LITE" assembly
 void DLL_CALLCONV InitIFF(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitJPEG(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitKOALA(Plugin *plugin, int format_id);
@@ -122,7 +122,7 @@ void DLL_CALLCONV InitPCD(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitPCX(Plugin *plugin, int format_id);
 #endif
 void DLL_CALLCONV InitPNG(Plugin *plugin, int format_id);
-#ifndef FREEIMAGE_LITE //Don't include those fomrmats into "LITE" assembly
+#ifndef FREEIMAGE_LITE //Don't include those formats into "LITE" assembly
 void DLL_CALLCONV InitPNM(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitPSD(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitRAS(Plugin *plugin, int format_id);
@@ -134,7 +134,7 @@ void DLL_CALLCONV InitXPM(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitDDS(Plugin *plugin, int format_id);
 #endif
 void DLL_CALLCONV InitGIF(Plugin *plugin, int format_id);
-#ifndef FREEIMAGE_LITE //Don't include those fomrmats into "LITE" assembly
+#ifndef FREEIMAGE_LITE //Don't include those formats into "LITE" assembly
 void DLL_CALLCONV InitHDR(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitG3(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitSGI(Plugin *plugin, int format_id);

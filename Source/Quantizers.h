@@ -2,7 +2,7 @@
 // Quantizer objects and functions
 //
 // Design and implementation by:
-// - Hervé Drolon <drolon@infonie.fr>
+// - HervÃ© Drolon <drolon@infonie.fr>
 // - Carsten Klein (cklein05@users.sourceforge.net)
 //
 // This file is part of FreeImage 3
@@ -19,6 +19,9 @@
 //
 // Use at your own risk!
 // =============================================================
+
+#ifndef FREEIMAGE_QUANTIZER_H
+#define FREEIMAGE_QUANTIZER_H
 
 // 
 ////////////////////////////////////////////////////////////////
@@ -352,3 +355,5 @@ protected:
 	void WritePalette(void *palette);
 
 };
+
+#endif // FREEIMAGE_QUANTIZER_H

@@ -6,7 +6,7 @@ Makefile*
 *.pdb
 *.lib
 *.lai
-*.user
+*.user*
 build-*
 debug/
 release/

@@ -19,10 +19,14 @@
 // Use at your own risk!
 // ==========================================================
 
-#include "../ZLib/zlib.h"
+#ifdef FREEIMAGE_USE_INTERNAL_LIBPNG
+#include "../3rdParty/ZLib/zlib.h"
+#else
+#include <zlib.h>
+#endif
 #include "FreeImage.h"
 #include "Utilities.h"
-#include "../ZLib/zutil.h"	/* must be the last header because of error C3163 in VS2008 (_vsnprintf defined in stdio.h) */
+#include "../3rdParty/ZLib/zutil.h"	/* must be the last header because of error C3163 in VS2008 (_vsnprintf defined in stdio.h) */
 
 /**
 Compresses a source buffer into a target buffer, using the ZLib library. 
