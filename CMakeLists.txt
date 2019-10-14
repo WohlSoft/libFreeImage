@@ -27,31 +27,36 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
     set(EMSCRIPTEN 1)
 endif()
 
-if(WIN32)
-    list(APPEND FreeImage_Defs
-        "-DOPJ_STATIC"
-        "-DLIBRAW_NODLL"
-        "-DFREEIMAGE_LIB=1"
-    )
-endif()
+list(APPEND FreeImage_Defs
+    "-DFREEIMAGE_BUILD"
+)
 
-if(UNIX)
-    if(APPLE)
-        list(APPEND FreeImage_Defs
-            "-DNO_LCMS"
-            "-D__ANSI__"
-            "-DDISABLE_PERF_MEASUREMENT"
-        )
-    else()
-        list(APPEND FreeImage_Defs "-DFREEIMAGE_LIB=1")
-    endif()
-endif()
+option(FREEIMAGE_SHARED "Build shared FreeImageLite" ON)
+option(FREEIMAGE_STATIC "Build static FreeImageLite" ON)
 
 option(FREEIMAGE_USE_SYSTEM_LIBPNG "Use external libPNG and ZLib" OFF)
+
+set(FREEIMAGE_PNG_LIB "" CACHE STRING "Path to libPNG library")
+set(FREEIMAGE_ZLIB_LIB "" CACHE STRING "Path to Zlib library")
+
+set(FREEIMAGE_PNG_INCLUDE "" CACHE STRING "Path to libPNG include")
+set(FREEIMAGE_ZLIB_INCLUDE "" CACHE STRING "Path to Zlib include")
 
 if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG AND ANDROID)
     # Disable NEON in libPNG which is broken in current version, TODO: Update libPNG
     list(APPEND FreeImage_Defs "-DPNG_ARM_NEON_OPT=0")
+else()
+    if(NOT FREEIMAGE_ZLIB_LIB OR NOT FREEIMAGE_ZLIB_INCLUDE)
+        find_package(ZLIB REQUIRED)
+        set(FREEIMAGE_ZLIB_LIB ${ZLIB_LIBRARIES})
+        set(FREEIMAGE_ZLIB_INCLUDE ${ZLIB_INCLUDE_DIRS})
+    endif()
+
+    if(NOT FREEIMAGE_PNG_LIB OR NOT FREEIMAGE_PNG_INCLUDE)
+        find_package(PNG REQUIRED)
+        set(FREEIMAGE_PNG_LIB ${PNG_LIBRARIES})
+        set(FREEIMAGE_PNG_INCLUDE ${PNG_INCLUDE_DIRS})
+    endif()
 endif()
 
 ####### COMPILER FLAGS
@@ -96,7 +101,10 @@ else()
 endif()
 
 ####### INCLUDE PATHS
-include_directories(${FREEIMAGE_DIR}/Source/)
+include_directories(
+    ${FREEIMAGE_DIR}/Source
+    ${CMAKE_CURRENT_BINARY_DIR}/config
+)
 
 ####### SOURCE CODE
 set(FREEIMAGE_SRC ${CMAKE_CURRENT_SOURCE_DIR}
@@ -200,15 +208,37 @@ if(WIN32)
     set(FREEIMAGE_SRC ${FREEIMAGE_SRC} Source/FreeImage/freeimage_misc.cpp)
 endif()
 
-add_library(FreeImageLite STATIC ${FREEIMAGE_SRC})
-target_compile_definitions(FreeImageLite PRIVATE ${FreeImage_Defs})
+set(FREEIMAGE_TARGETS)
+if(FREEIMAGE_STATIC)
+    add_library(FreeImageLiteStatic STATIC ${FREEIMAGE_SRC})
+    if(WIN32)
+        set_target_properties(FreeImageLiteStatic PROPERTIES OUTPUT_NAME FreeImageLite-static)
+    else()
+        set_target_properties(FreeImageLiteStatic PROPERTIES OUTPUT_NAME FreeImageLite)
+    endif()
+    target_include_directories(FreeImageLiteStatic PUBLIC "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}")
+    target_compile_definitions(FreeImageLiteStatic PRIVATE ${FreeImage_Defs} "-DFREEIMAGE_LIB")
+    list(APPEND FREEIMAGE_TARGETS FreeImageLiteStatic)
+endif()
+
+if(FREEIMAGE_SHARED)
+    add_library(FreeImageLiteShared SHARED ${FREEIMAGE_SRC})
+    set_target_properties(FreeImageLiteShared PROPERTIES OUTPUT_NAME FreeImageLite)
+    target_include_directories(FreeImageLiteShared PUBLIC "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}")
+    target_link_libraries(FreeImageLiteShared PUBLIC "${FREEIMAGE_ZLIB_LIB}" "${FREEIMAGE_PNG_LIB}")
+    target_compile_definitions(FreeImageLiteShared PRIVATE ${FreeImage_Defs})
+    list(APPEND FREEIMAGE_TARGETS FreeImageLiteShared)
+endif()
 
 ####### PUBLIC HEADER
-file(GLOB freeimage_headers ${FREEIMAGE_DIR}/Source/FreeImageLite.h)
-install(FILES ${freeimage_headers} DESTINATION include)
-
-install(TARGETS FreeImageLite
-    ARCHIVE DESTINATION lib CONFIGURATIONS Debug Release MinSizeRel RelWithDebInfo
-    LIBRARY DESTINATION lib CONFIGURATIONS Debug Release MinSizeRel RelWithDebInfo
-    RUNTIME DESTINATION bin CONFIGURATIONS Debug Release MinSizeRel RelWithDebInfo
+install(FILES
+    "${FREEIMAGE_DIR}/Source/FreeImageLite.h"
+    DESTINATION include
 )
+
+install(TARGETS ${FREEIMAGE_TARGETS}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+
