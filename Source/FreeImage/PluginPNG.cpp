@@ -120,7 +120,11 @@ ReadMetadata(png_structp png_ptr, png_infop info_ptr, FIBITMAP *dib) {
 			tag = FreeImage_CreateTag();
 			if(!tag) return FALSE;
 
+#if (PNG_LIBPNG_VER_MAJOR >= 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
 			DWORD tag_length = (DWORD) MAX(text_ptr[i].text_length, text_ptr[i].itxt_length);
+#else
+			DWORD tag_length = (DWORD) (text_ptr[i].text_length)
+#endif
 
 			FreeImage_SetTagLength(tag, tag_length);
 			FreeImage_SetTagCount(tag, tag_length);
@@ -193,10 +197,11 @@ WriteMetadata(png_structp png_ptr, png_infop info_ptr, FIBITMAP *dib) {
 			text_metadata.key = (char*)FreeImage_GetTagKey(tag);	// keyword, 1-79 character description of "text"
 			text_metadata.text = (char*)FreeImage_GetTagValue(tag);	// comment, may be an empty string (ie "")
 			text_metadata.text_length = FreeImage_GetTagLength(tag);// length of the text string
+#if (PNG_LIBPNG_VER_MAJOR >= 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
 			text_metadata.itxt_length = FreeImage_GetTagLength(tag);// length of the itxt string
 			text_metadata.lang = 0;		 // language code, 0-79 characters or a NULL pointer
 			text_metadata.lang_key = 0;	 // keyword translated UTF-8 string, 0 or more chars or a NULL pointer
-
+#endif
 			// set the tag
 			png_set_text(png_ptr, info_ptr, &text_metadata, 1);
 
@@ -215,9 +220,11 @@ WriteMetadata(png_structp png_ptr, png_infop info_ptr, FIBITMAP *dib) {
 		text_metadata.key = (char*)g_png_xmp_keyword;			// keyword, 1-79 character description of "text"
 		text_metadata.text = (char*)FreeImage_GetTagValue(tag);	// comment, may be an empty string (ie "")
 		text_metadata.text_length = FreeImage_GetTagLength(tag);// length of the text string
+#if (PNG_LIBPNG_VER_MAJOR >= 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
 		text_metadata.itxt_length = FreeImage_GetTagLength(tag);// length of the itxt string
 		text_metadata.lang = 0;		 // language code, 0-79 characters or a NULL pointer
 		text_metadata.lang_key = 0;	 // keyword translated UTF-8 string, 0 or more chars or a NULL pointer
+#endif
 
 		// set the tag
 		png_set_text(png_ptr, info_ptr, &text_metadata, 1);
@@ -999,11 +1006,13 @@ Save(FreeImageIO *io, FIBITMAP *dib, fi_handle handle, int /*page*/, int flags, 
 			// write possible ICC profile
 
 			FIICCPROFILE *iccProfile = FreeImage_GetICCProfile(dib);
+#ifdef PNG_SET_OPTION_SUPPORTED
 			if (iccProfile->size && iccProfile->data) {
 				// skip ICC profile check
 				png_set_option(png_ptr, PNG_SKIP_sRGB_CHECK_PROFILE, 1);
 				png_set_iCCP(png_ptr, info_ptr, "Embedded Profile", 0, (png_const_bytep)iccProfile->data, iccProfile->size);
 			}
+#endif
 
 			// write metadata
 
