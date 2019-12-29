@@ -120,7 +120,7 @@ ReadMetadata(png_structp png_ptr, png_infop info_ptr, FIBITMAP *dib) {
 			tag = FreeImage_CreateTag();
 			if(!tag) return FALSE;
 
-#if (PNG_LIBPNG_VER_MAJOR >= 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
+#if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
 			DWORD tag_length = (DWORD) MAX(text_ptr[i].text_length, text_ptr[i].itxt_length);
 #else
 			DWORD tag_length = (DWORD) (text_ptr[i].text_length)
@@ -197,7 +197,7 @@ WriteMetadata(png_structp png_ptr, png_infop info_ptr, FIBITMAP *dib) {
 			text_metadata.key = (char*)FreeImage_GetTagKey(tag);	// keyword, 1-79 character description of "text"
 			text_metadata.text = (char*)FreeImage_GetTagValue(tag);	// comment, may be an empty string (ie "")
 			text_metadata.text_length = FreeImage_GetTagLength(tag);// length of the text string
-#if (PNG_LIBPNG_VER_MAJOR >= 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
+#if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
 			text_metadata.itxt_length = FreeImage_GetTagLength(tag);// length of the itxt string
 			text_metadata.lang = 0;		 // language code, 0-79 characters or a NULL pointer
 			text_metadata.lang_key = 0;	 // keyword translated UTF-8 string, 0 or more chars or a NULL pointer
@@ -220,7 +220,7 @@ WriteMetadata(png_structp png_ptr, png_infop info_ptr, FIBITMAP *dib) {
 		text_metadata.key = (char*)g_png_xmp_keyword;			// keyword, 1-79 character description of "text"
 		text_metadata.text = (char*)FreeImage_GetTagValue(tag);	// comment, may be an empty string (ie "")
 		text_metadata.text_length = FreeImage_GetTagLength(tag);// length of the text string
-#if (PNG_LIBPNG_VER_MAJOR >= 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
+#if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
 		text_metadata.itxt_length = FreeImage_GetTagLength(tag);// length of the itxt string
 		text_metadata.lang = 0;		 // language code, 0-79 characters or a NULL pointer
 		text_metadata.lang_key = 0;	 // keyword translated UTF-8 string, 0 or more chars or a NULL pointer
