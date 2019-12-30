@@ -88,7 +88,9 @@ _FlushProc(png_structp png_ptr) {
 static void
 error_handler(png_structp png_ptr, const char *error) {
 	FreeImage_OutputMessageProc(s_format_id, error);
+#if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 5)
 	png_longjmp(png_ptr, 1);
+#endif
 }
 
 // in FreeImage warnings disabled
@@ -123,7 +125,7 @@ ReadMetadata(png_structp png_ptr, png_infop info_ptr, FIBITMAP *dib) {
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
 			DWORD tag_length = (DWORD) MAX(text_ptr[i].text_length, text_ptr[i].itxt_length);
 #else
-			DWORD tag_length = (DWORD) (text_ptr[i].text_length)
+			DWORD tag_length = (DWORD) (text_ptr[i].text_length);
 #endif
 
 			FreeImage_SetTagLength(tag, tag_length);
@@ -718,12 +720,16 @@ Load(FreeImageIO *io, fi_handle handle, int /*page*/, int flags, void * /*data*/
 
 			if (png_get_valid(png_ptr, info_ptr, PNG_INFO_iCCP)) {
 				png_charp profile_name = NULL;
+#if (PNG_LIBPNG_VER_MAJOR > 1) || \
+    (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR > 5) || \
+    (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR == 5 && PNG_LIBPNG_VER_RELEASE >= 1)
 				png_bytep profile_data = NULL;
+#else
+				png_charp profile_data = NULL;
+#endif
 				png_uint_32 profile_length = 0;
 				int  compression_type;
-
 				png_get_iCCP(png_ptr, info_ptr, &profile_name, &compression_type, &profile_data, &profile_length);
-
 				// copy ICC profile data (must be done after FreeImage_AllocateHeader)
 
 				FreeImage_CreateICCProfile(dib, profile_data, profile_length);
@@ -757,8 +763,9 @@ Load(FreeImageIO *io, fi_handle handle, int /*page*/, int flags, void * /*data*/
 			for (png_uint_32 k = 0; k < height; k++) {
 				row_pointers[height - 1 - k] = FreeImage_GetScanLine(dib, k);
 			}
-
+#ifdef PNG_BENIGN_ERRORS_SUPPORTED
 			png_set_benign_errors(png_ptr, 1);
+#endif
 			png_read_image(png_ptr, row_pointers);
 
 			// check if the bitmap contains transparency, if so enable it in the header
