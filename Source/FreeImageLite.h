@@ -28,6 +28,9 @@
 
 // Version information ------------------------------------------------------
 
+/* FreeImage Lite version */
+#define FREEIMAGE_LITE
+
 #define FREEIMAGE_MAJOR_VERSION   3
 #define FREEIMAGE_MINOR_VERSION   18
 #define FREEIMAGE_RELEASE_SERIAL  0
