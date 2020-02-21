@@ -45,7 +45,9 @@ set(FREEIMAGE_ZLIB_INCLUDE "" CACHE STRING "Path to Zlib include")
 if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG AND ANDROID)
     # Disable NEON in libPNG which is broken in current version, TODO: Update libPNG
     list(APPEND FreeImage_Defs "-DPNG_ARM_NEON_OPT=0")
-else()
+endif()
+
+if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
     if(NOT FREEIMAGE_ZLIB_LIB OR NOT FREEIMAGE_ZLIB_INCLUDE)
         find_package(ZLIB REQUIRED)
         set(FREEIMAGE_ZLIB_LIB ${ZLIB_LIBRARIES})
