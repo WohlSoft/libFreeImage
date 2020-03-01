@@ -204,6 +204,8 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
         Source/3rdParty/ZLib/uncompr.c
         Source/3rdParty/ZLib/zutil.c
     )
+    set(FREEIMAGE_ZLIB_INCLUDE "Source/3rdParty/ZLib")
+    set(FREEIMAGE_PNG_INCLUDE "Source/3rdParty/LibPNG")
 endif()
 
 if(WIN32)
