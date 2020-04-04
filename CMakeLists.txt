@@ -187,7 +187,10 @@ set(FREEIMAGE_SRC ${CMAKE_CURRENT_SOURCE_DIR}
 
 if(FREEIMAGE_ENABLE_JPEG)
     list(APPEND FreeImage_Defs -DFREEIMAGE_ENABLE_JPEG)
-    list(APPEND FREEIMAGE_SRC Source/FreeImage/PluginJPEG.cpp)
+    list(APPEND FREEIMAGE_SRC
+        Source/FreeImage/PluginJPEG.cpp
+        Source/Metadata/Exif.cpp
+    )
 endif()
 
 if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
