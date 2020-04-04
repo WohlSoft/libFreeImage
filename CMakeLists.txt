@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.2)
 
 ####### ADD PREDEFINED DEFINITIONS:
 SET(FREEIMAGE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-SET(LIBPNG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/LibPNG/)
-SET(ZLIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/zlib/)
+SET(LIBPNG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/3rdParty/LibPNG/)
+SET(LIBJPEG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/3rdParty/LibJPEG/)
+SET(ZLIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/3rdParty/zlib/)
 
 ####### SET POSTFIX:
 set(CMAKE_DEBUG_POSTFIX             "d")
@@ -35,12 +36,19 @@ option(FREEIMAGE_SHARED "Build shared FreeImageLite" ON)
 option(FREEIMAGE_STATIC "Build static FreeImageLite" ON)
 
 option(FREEIMAGE_USE_SYSTEM_LIBPNG "Use external libPNG and ZLib" OFF)
+option(FREEIMAGE_USE_SYSTEM_LIBJPEG "Use external libJPEG" OFF)
+
+option(FREEIMAGE_ENABLE_JPEG "Enables JPEG support" ON)
 
 set(FREEIMAGE_PNG_LIB "" CACHE STRING "Path to libPNG library")
 set(FREEIMAGE_ZLIB_LIB "" CACHE STRING "Path to Zlib library")
 
+set(FREEIMAGE_JPEG_LIB "" CACHE STRING "Path to JPEG library")
+
 set(FREEIMAGE_PNG_INCLUDE "" CACHE STRING "Path to libPNG include")
 set(FREEIMAGE_ZLIB_INCLUDE "" CACHE STRING "Path to Zlib include")
+
+set(FREEIMAGE_JPEG_INCLUDE "" CACHE STRING "Path to libJPEG include")
 
 if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG AND ANDROID)
     # Disable NEON in libPNG which is broken in current version, TODO: Update libPNG
@@ -60,6 +68,15 @@ if(FREEIMAGE_USE_SYSTEM_LIBPNG)
         set(FREEIMAGE_PNG_INCLUDE ${PNG_INCLUDE_DIRS})
     endif()
 endif()
+
+if(FREEIMAGE_ENABLE_JPEG AND FREEIMAGE_USE_SYSTEM_LIBJPEG)
+    if(NOT FREEIMAGE_JPEG_INCLUDE)
+        find_package(JPEG REQUIRED)
+        set(FREEIMAGE_JPEG_LIB ${JPEG_LIBRARIES})
+        set(FREEIMAGE_JPEG_INCLUDE ${JPEG_INCLUDE_DIRS})
+    endif()
+endif()
+
 
 ####### COMPILER FLAGS
 set(CMAKE_CXX_STANDARD 11)
@@ -168,6 +185,11 @@ set(FREEIMAGE_SRC ${CMAKE_CURRENT_SOURCE_DIR}
     Source/FreeImageToolkit/Resize.cpp
 )
 
+if(FREEIMAGE_ENABLE_JPEG)
+    list(APPEND FreeImage_Defs -DFREEIMAGE_ENABLE_JPEG)
+    list(APPEND FREEIMAGE_SRC Source/FreeImage/PluginJPEG.cpp)
+endif()
+
 if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
     list(APPEND FreeImage_Defs
         FREEIMAGE_USE_INTERNAL_LIBPNG
@@ -208,6 +230,63 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
     set(FREEIMAGE_PNG_INCLUDE "Source/3rdParty/LibPNG")
 endif()
 
+if(FREEIMAGE_ENABLE_JPEG AND NOT FREEIMAGE_USE_SYSTEM_LIBJPEG)
+    list(APPEND FreeImage_Defs
+        FREEIMAGE_USE_INTERNAL_LIBJPEG
+    )
+
+    list(APPEND FREEIMAGE_SRC
+        Source/3rdParty/LibJPEG/jaricom.c
+        Source/3rdParty/LibJPEG/jcapimin.c
+        Source/3rdParty/LibJPEG/jcapistd.c
+        Source/3rdParty/LibJPEG/jcarith.c
+        Source/3rdParty/LibJPEG/jccoefct.c
+        Source/3rdParty/LibJPEG/jccolor.c
+        Source/3rdParty/LibJPEG/jcdctmgr.c
+        Source/3rdParty/LibJPEG/jchuff.c
+        Source/3rdParty/LibJPEG/jcinit.c
+        Source/3rdParty/LibJPEG/jcmainct.c
+        Source/3rdParty/LibJPEG/jcmarker.c
+        Source/3rdParty/LibJPEG/jcmaster.c
+        Source/3rdParty/LibJPEG/jcomapi.c
+        Source/3rdParty/LibJPEG/jcparam.c
+        Source/3rdParty/LibJPEG/jcprepct.c
+        Source/3rdParty/LibJPEG/jcsample.c
+        Source/3rdParty/LibJPEG/jctrans.c
+        Source/3rdParty/LibJPEG/jdapimin.c
+        Source/3rdParty/LibJPEG/jdapistd.c
+        Source/3rdParty/LibJPEG/jdarith.c
+        Source/3rdParty/LibJPEG/jdatadst.c
+        Source/3rdParty/LibJPEG/jdatasrc.c
+        Source/3rdParty/LibJPEG/jdcoefct.c
+        Source/3rdParty/LibJPEG/jdcolor.c
+        Source/3rdParty/LibJPEG/jddctmgr.c
+        Source/3rdParty/LibJPEG/jdhuff.c
+        Source/3rdParty/LibJPEG/jdinput.c
+        Source/3rdParty/LibJPEG/jdmainct.c
+        Source/3rdParty/LibJPEG/jdmarker.c
+        Source/3rdParty/LibJPEG/jdmaster.c
+        Source/3rdParty/LibJPEG/jdmerge.c
+        Source/3rdParty/LibJPEG/jdpostct.c
+        Source/3rdParty/LibJPEG/jdsample.c
+        Source/3rdParty/LibJPEG/jdtrans.c
+        Source/3rdParty/LibJPEG/jerror.c
+        Source/3rdParty/LibJPEG/jfdctflt.c
+        Source/3rdParty/LibJPEG/jfdctfst.c
+        Source/3rdParty/LibJPEG/jfdctint.c
+        Source/3rdParty/LibJPEG/jidctflt.c
+        Source/3rdParty/LibJPEG/jidctfst.c
+        Source/3rdParty/LibJPEG/jidctint.c
+        Source/3rdParty/LibJPEG/jmemmgr.c
+        Source/3rdParty/LibJPEG/jmemnobs.c
+        Source/3rdParty/LibJPEG/jquant1.c
+        Source/3rdParty/LibJPEG/jquant2.c
+        Source/3rdParty/LibJPEG/jutils.c
+        Source/3rdParty/LibJPEG/transupp.c
+    )
+    set(FREEIMAGE_JPEG_INCLUDE "Source/3rdParty/LibJPEG")
+endif()
+
 if(WIN32)
     set(FREEIMAGE_SRC ${FREEIMAGE_SRC} Source/FreeImage/freeimage_misc.cpp)
 endif()
@@ -220,7 +299,7 @@ if(FREEIMAGE_STATIC)
     else()
         set_target_properties(FreeImageLiteStatic PROPERTIES OUTPUT_NAME FreeImageLite)
     endif()
-    target_include_directories(FreeImageLiteStatic PUBLIC "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}")
+    target_include_directories(FreeImageLiteStatic PUBLIC "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}" "${FREEIMAGE_JPEG_INCLUDE}")
     target_compile_definitions(FreeImageLiteStatic PRIVATE ${FreeImage_Defs} "-DFREEIMAGE_LIB")
     list(APPEND FREEIMAGE_TARGETS FreeImageLiteStatic)
 endif()
@@ -228,8 +307,8 @@ endif()
 if(FREEIMAGE_SHARED)
     add_library(FreeImageLiteShared SHARED ${FREEIMAGE_SRC})
     set_target_properties(FreeImageLiteShared PROPERTIES OUTPUT_NAME FreeImageLite)
-    target_include_directories(FreeImageLiteShared PUBLIC "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}")
-    target_link_libraries(FreeImageLiteShared PUBLIC "${FREEIMAGE_ZLIB_LIB}" "${FREEIMAGE_PNG_LIB}")
+    target_include_directories(FreeImageLiteShared PUBLIC "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}" "${FREEIMAGE_JPEG_INCLUDE}")
+    target_link_libraries(FreeImageLiteShared PUBLIC "${FREEIMAGE_ZLIB_LIB}" "${FREEIMAGE_PNG_LIB}" "${FREEIMAGE_JPEG_LIB}")
     target_compile_definitions(FreeImageLiteShared PRIVATE ${FreeImage_Defs})
     list(APPEND FREEIMAGE_TARGETS FreeImageLiteShared)
 endif()

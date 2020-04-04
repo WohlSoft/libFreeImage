@@ -282,10 +282,10 @@ typedef struct tagFIRGBAF {
 /** Data structure for COMPLEX type (complex number)
 */
 typedef struct tagFICOMPLEX {
-    /// real part
+	/// real part
 	double r;
 	/// imaginary part
-    double i;
+	double i;
 } FICOMPLEX;
 
 #if (defined(_WIN32) || defined(__WIN32__))
@@ -434,7 +434,8 @@ FI_ENUM(FREE_IMAGE_FORMAT) {
 	FIF_JXR		= 36
 #else
 	FIF_PNG		= 2,
-	FIF_GIF     = 3
+	FIF_GIF		= 3,
+	FIF_JPEG	= 4
 #endif
 };
 
@@ -615,7 +616,7 @@ typedef long (DLL_CALLCONV *FI_TellProc) (fi_handle handle);
 #endif // WIN32
 
 FI_STRUCT(FreeImageIO) {
-	FI_ReadProc  read_proc;     //! pointer to the function used to read data
+    FI_ReadProc  read_proc;     //! pointer to the function used to read data
     FI_WriteProc write_proc;    //! pointer to the function used to write data
     FI_SeekProc  seek_proc;     //! pointer to the function used to seek
     FI_TellProc  tell_proc;     //! pointer to the function used to aquire the current position
