@@ -245,10 +245,8 @@ FreeImage_Initialise(BOOL load_local_plugins_only) {
 			*/
 			s_plugins->AddNode(InitBMP);
 			s_plugins->AddNode(InitICO);
-#ifdef FREEIMAGE_ENABLE_JPEG
-			s_plugins->AddNode(InitJPEG);
-#endif
 #ifndef FREEIMAGE_LITE //Don't include those fomrmats into "LITE" assembly
+			s_plugins->AddNode(InitJPEG);
 			s_plugins->AddNode(InitJNG);
 			s_plugins->AddNode(InitKOALA);
 			s_plugins->AddNode(InitIFF);
@@ -259,9 +257,9 @@ FreeImage_Initialise(BOOL load_local_plugins_only) {
 			s_plugins->AddNode(InitPCX);
 			s_plugins->AddNode(InitPNM, NULL, "PGM", "Portable Greymap (ASCII)", "pgm", "^P2");
 			s_plugins->AddNode(InitPNM, NULL, "PGMRAW", "Portable Greymap (RAW)", "pgm", "^P5");
-		#endif
+#endif
 			s_plugins->AddNode(InitPNG);
-		#ifndef FREEIMAGE_LITE
+#ifndef FREEIMAGE_LITE
 			s_plugins->AddNode(InitPNM, NULL, "PPM", "Portable Pixelmap (ASCII)", "ppm", "^P3");
 			s_plugins->AddNode(InitPNM, NULL, "PPMRAW", "Portable Pixelmap (RAW)", "ppm", "^P6");
 			s_plugins->AddNode(InitRAS);
@@ -273,9 +271,12 @@ FreeImage_Initialise(BOOL load_local_plugins_only) {
 			s_plugins->AddNode(InitXBM);
 			s_plugins->AddNode(InitXPM);
 			s_plugins->AddNode(InitDDS);
-		#endif
+#endif
 			s_plugins->AddNode(InitGIF);
-		#ifndef FREEIMAGE_LITE
+#if defined(FREEIMAGE_LITE) && defined(FREEIMAGE_ENABLE_JPEG)
+			s_plugins->AddNode(InitJPEG);
+#endif
+#ifndef FREEIMAGE_LITE
 			s_plugins->AddNode(InitHDR);
 			s_plugins->AddNode(InitG3);
 			s_plugins->AddNode(InitSGI);
@@ -286,10 +287,10 @@ FreeImage_Initialise(BOOL load_local_plugins_only) {
 			s_plugins->AddNode(InitPICT);
 			s_plugins->AddNode(InitRAW);
 			s_plugins->AddNode(InitWEBP);
-#if !(defined(_MSC_VER) && (_MSC_VER <= 1310))
+#	if !(defined(_MSC_VER) && (_MSC_VER <= 1310))
 			s_plugins->AddNode(InitJXR);
-#endif // unsupported by MS Visual Studio 2003 !!!
-			#endif
+#	endif // unsupported by MS Visual Studio 2003 !!!
+#endif
 			// external plugin initialization
 
 #if defined(_WIN32) && !defined(__MINGW32__)
