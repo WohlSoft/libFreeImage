@@ -225,7 +225,7 @@ empty_output_buffer (j_compress_ptr cinfo) {
 	dest->pub.next_output_byte = dest->buffer;
 	dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
 
-	return TRUE;
+        return static_cast<boolean>(TRUE);
 }
 
 /**
@@ -271,7 +271,7 @@ init_source (j_decompress_ptr cinfo) {
      * This is correct behavior for reading a series of images from one source.
     */
 
-    src->start_of_file = TRUE;
+    src->start_of_file = static_cast<boolean>(TRUE);
 }
 
 /**
@@ -313,9 +313,9 @@ fill_input_buffer (j_decompress_ptr cinfo) {
 
 	src->pub.next_input_byte = src->buffer;
 	src->pub.bytes_in_buffer = nbytes;
-	src->start_of_file = FALSE;
+        src->start_of_file = static_cast<boolean>(FALSE);
 
-	return TRUE;
+        return static_cast<boolean>(TRUE);
 }
 
 /**
@@ -1203,7 +1203,7 @@ Load(FreeImageIO *io, fi_handle handle, int page, int flags, void *data) {
 
 			// step 3: read handle parameters with jpeg_read_header()
 
-			jpeg_read_header(&cinfo, TRUE);
+                        jpeg_read_header(&cinfo, static_cast<boolean>(TRUE));
 
 			// step 4: set parameters for decompression
 
@@ -1226,7 +1226,7 @@ Load(FreeImageIO *io, fi_handle handle, int page, int flags, void *data) {
 
 			if ((flags & JPEG_ACCURATE) != JPEG_ACCURATE) {
 				cinfo.dct_method          = JDCT_IFAST;
-				cinfo.do_fancy_upsampling = FALSE;
+                                cinfo.do_fancy_upsampling = static_cast<boolean>(FALSE);
 			}
 
 			if ((flags & JPEG_GREYSCALE) == JPEG_GREYSCALE) {
@@ -1488,7 +1488,7 @@ Save(FreeImageIO *io, FIBITMAP *dib, fi_handle handle, int page, int flags, void
 
 			// compute optimal Huffman coding tables for the image
 			if((flags & JPEG_OPTIMIZE) == JPEG_OPTIMIZE) {
-				cinfo.optimize_coding = TRUE;
+                                cinfo.optimize_coding = static_cast<boolean>(TRUE);
 			}
 
 			// Set JFIF density parameters from the DIB data
@@ -1578,11 +1578,11 @@ Save(FreeImageIO *io, FIBITMAP *dib, fi_handle handle, int page, int flags, void
 				}
 			}
 
-			jpeg_set_quality(&cinfo, quality, TRUE); /* limit to baseline-JPEG values */
+                        jpeg_set_quality(&cinfo, quality, static_cast<boolean>(TRUE)); /* limit to baseline-JPEG values */
 
 			// Step 5: Start compressor
 
-			jpeg_start_compress(&cinfo, TRUE);
+                        jpeg_start_compress(&cinfo, static_cast<boolean>(TRUE));
 
 			// Step 6: Write special markers
 
