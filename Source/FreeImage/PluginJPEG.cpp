@@ -1578,11 +1578,11 @@ Save(FreeImageIO *io, FIBITMAP *dib, fi_handle handle, int page, int flags, void
 				}
 			}
 
-                        jpeg_set_quality(&cinfo, quality, static_cast<boolean>(TRUE)); /* limit to baseline-JPEG values */
+			jpeg_set_quality(&cinfo, quality, static_cast<boolean>(TRUE)); /* limit to baseline-JPEG values */
 
 			// Step 5: Start compressor
 
-                        jpeg_start_compress(&cinfo, static_cast<boolean>(TRUE));
+			jpeg_start_compress(&cinfo, static_cast<boolean>(TRUE));
 
 			// Step 6: Write special markers
 
