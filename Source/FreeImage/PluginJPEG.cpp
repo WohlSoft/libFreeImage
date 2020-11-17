@@ -512,7 +512,7 @@ marker_is_icc(jpeg_saved_marker_ptr marker) {
   return FALSE.  You might want to issue an error message instead.
 */
 static BOOL
-jpeg_read_icc_profile(j_decompress_ptr cinfo, JOCTET **icc_data_ptr, unsigned *icc_data_len) {
+fi_jpeg_read_icc_profile(j_decompress_ptr cinfo, JOCTET **icc_data_ptr, unsigned *icc_data_len) {
 	jpeg_saved_marker_ptr marker;
 	int num_markers = 0;
 	int seq_no;
@@ -754,7 +754,7 @@ read_markers(j_decompress_ptr cinfo, FIBITMAP *dib) {
 	BYTE *icc_profile = NULL;
 	unsigned icc_length = 0;
 
-	if( jpeg_read_icc_profile(cinfo, &icc_profile, &icc_length) ) {
+	if( fi_jpeg_read_icc_profile(cinfo, &icc_profile, &icc_length) ) {
 		// copy ICC profile data
 		FreeImage_CreateICCProfile(dib, icc_profile, icc_length);
 		// clean up
