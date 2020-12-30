@@ -46,7 +46,7 @@ DeprecationMgr::~DeprecationMgr() {
 
 			char txt[255];
 
-			sprintf(txt, " * %s called from %i different places. Instead use %s.\n", function->old_function_name,  function->called_from.size(), function->new_function_name);
+			sprintf(txt, " * %s called from %i different places. Instead use %s.\n", function->old_function_name,  (int)function->called_from.size(), function->new_function_name);
 
             OutputDebugStringA(txt);
 		}

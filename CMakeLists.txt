@@ -97,9 +97,14 @@ if(NOT MSVC)
                 -Wno-type-limits -Wno-reorder")
 endif()
 
-# Disable bogus MSVC warnings
 if(MSVC)
+    # Disable bogus MSVC warnings
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS)
+    # Enable unwind for ARM builds
+    if(${MSVC_C_ARCHITECTURE_ID} MATCHES "ARM")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /EHsc")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+    endif()
 endif()
 
 if(APPLE)
@@ -204,7 +209,8 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
 
         # set definitions and sources for arm
         if(CMAKE_SYSTEM_PROCESSOR MATCHES "^arm" OR
-           CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64")
+           CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64" OR 
+           (MSVC AND MSVC_C_ARCHITECTURE_ID MATCHES "ARM*"))
             set(PNG_ARM_NEON_POSSIBLE_VALUES check on off)
             set(PNG_ARM_NEON "check" CACHE STRING "Enable ARM NEON optimizations:
                 check: (default) use internal checking code;
@@ -232,7 +238,7 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
 
         # set definitions and sources for powerpc
         if(CMAKE_SYSTEM_PROCESSOR MATCHES "^powerpc*" OR
-           CMAKE_SYSTEM_PROCESSOR MATCHES "^ppc64*" )
+           CMAKE_SYSTEM_PROCESSOR MATCHES "^ppc64*")
             set(PNG_POWERPC_VSX_POSSIBLE_VALUES on off)
             set(PNG_POWERPC_VSX "on" CACHE STRING "Enable POWERPC VSX optimizations:
                 off: disable the optimizations.")
