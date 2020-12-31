@@ -50,11 +50,6 @@ set(FREEIMAGE_ZLIB_INCLUDE "" CACHE STRING "Path to Zlib include")
 
 set(FREEIMAGE_JPEG_INCLUDE "" CACHE STRING "Path to libJPEG include")
 
-if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG AND ANDROID)
-    # Disable NEON in libPNG which is broken in current version, TODO: Update libPNG
-    list(APPEND FreeImage_Defs "-DPNG_ARM_NEON_OPT=0")
-endif()
-
 if(FREEIMAGE_USE_SYSTEM_LIBPNG)
     if(NOT FREEIMAGE_ZLIB_LIB OR NOT FREEIMAGE_ZLIB_INCLUDE)
         find_package(ZLIB REQUIRED)
@@ -118,7 +113,7 @@ if(APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-const-variable -Wno-uninitialized -Wno-header-guard -fexceptions \
                                             -fvisibility=hidden -Wno-ctor-dtor-privacy -stdlib=libc++ -Wc++11-narrowing")
 else()
-    if(NOT MSVC AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    if(NOT MSVC AND NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "^(Apple)?Clang$")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-old-style-declaration")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-clobbered")
     endif()
@@ -207,21 +202,24 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
 
     if(PNG_HARDWARE_OPTIMIZATIONS)
 
+        include(${CMAKE_CURRENT_SOURCE_DIR}/TargetArch.cmake)
+
+        target_architecture(TARGET_PROCESSOR)
+        message("--- ${TARGET_PROCESSOR} ---")
+
         # set definitions and sources for arm
-        if(CMAKE_SYSTEM_PROCESSOR MATCHES "^arm" OR
-           CMAKE_SYSTEM_PROCESSOR MATCHES "^aarch64" OR 
-           (MSVC AND MSVC_C_ARCHITECTURE_ID MATCHES "ARM*"))
+        if(${TARGET_PROCESSOR} MATCHES "arm.*")
+            message("--- ARM detected ---")
             set(PNG_ARM_NEON_POSSIBLE_VALUES check on off)
             set(PNG_ARM_NEON "check" CACHE STRING "Enable ARM NEON optimizations:
                 check: (default) use internal checking code;
                 off: disable the optimizations;
                 on: turn on unconditionally.")
-            set_property(CACHE PNG_ARM_NEON PROPERTY STRINGS
-            ${PNG_ARM_NEON_POSSIBLE_VALUES})
+            set_property(CACHE PNG_ARM_NEON PROPERTY STRINGS ${PNG_ARM_NEON_POSSIBLE_VALUES})
             list(FIND PNG_ARM_NEON_POSSIBLE_VALUES ${PNG_ARM_NEON} index)
             if(index EQUAL -1)
                 message(FATAL_ERROR " PNG_ARM_NEON must be one of [${PNG_ARM_NEON_POSSIBLE_VALUES}]")
-            elseif(NOT ${PNG_ARM_NEON} STREQUAL "no")
+            elseif(NOT ${PNG_ARM_NEON} STREQUAL "no" AND NOT APPLE) # TODO: Fix the Apple ARM support
                 set(libpng_arm_sources
                     Source/3rdParty/LibPNG/arm/arm_init.c
                     Source/3rdParty/LibPNG/arm/filter_neon.S
@@ -237,8 +235,8 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
         endif()
 
         # set definitions and sources for powerpc
-        if(CMAKE_SYSTEM_PROCESSOR MATCHES "^powerpc*" OR
-           CMAKE_SYSTEM_PROCESSOR MATCHES "^ppc64*")
+        if(${TARGET_PROCESSOR} MATCHES "ppc.*")
+            message("--- PowerPC detected ---")
             set(PNG_POWERPC_VSX_POSSIBLE_VALUES on off)
             set(PNG_POWERPC_VSX "on" CACHE STRING "Enable POWERPC VSX optimizations:
                 off: disable the optimizations.")
@@ -260,8 +258,8 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
         endif()
 
         # set definitions and sources for intel
-        if(CMAKE_SYSTEM_PROCESSOR MATCHES "^i?86" OR
-            CMAKE_SYSTEM_PROCESSOR MATCHES "^x86_64*" )
+        if(TARGET_PROCESSOR MATCHES "x86_64|AMD64" OR TARGET_PROCESSOR MATCHES "^i.86$")
+            message("--- Intel/AMD detected ---")
             set(PNG_INTEL_SSE_POSSIBLE_VALUES on off)
             set(PNG_INTEL_SSE "on" CACHE STRING "Enable INTEL_SSE optimizations:
              off: disable the optimizations")
@@ -285,6 +283,7 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
         # set definitions and sources for MIPS
         if(CMAKE_SYSTEM_PROCESSOR MATCHES "mipsel*" OR
             CMAKE_SYSTEM_PROCESSOR MATCHES "mips64el*" )
+            message("--- MIPS detected ---")
             set(PNG_MIPS_MSA_POSSIBLE_VALUES on off)
             set(PNG_MIPS_MSA "on" CACHE STRING "Enable MIPS_MSA optimizations:
                 off: disable the optimizations")

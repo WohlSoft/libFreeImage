@@ -13,6 +13,8 @@ release/
 Debug/
 Release/
 
+.DS_Store
+
 CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
