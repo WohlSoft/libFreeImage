@@ -213,7 +213,7 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
             list(FIND PNG_ARM_NEON_POSSIBLE_VALUES ${PNG_ARM_NEON} index)
             if(index EQUAL -1)
                 message(FATAL_ERROR " PNG_ARM_NEON must be one of [${PNG_ARM_NEON_POSSIBLE_VALUES}]")
-            elseif(NOT ${PNG_ARM_NEON} STREQUAL "no" AND NOT APPLE) # TODO: Fix the Apple ARM support
+            elseif(NOT ${PNG_ARM_NEON} STREQUAL "no" AND NOT APPLE AND NOT ANDROID) # TODO: Fix the Apple ARM support
                 set(libpng_arm_sources
                     Source/3rdParty/LibPNG/arm/arm_init.c
                     Source/3rdParty/LibPNG/arm/filter_neon.S
