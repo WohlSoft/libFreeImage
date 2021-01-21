@@ -7,7 +7,9 @@ SET(LIBJPEG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/3rdParty/LibJPEG/)
 SET(ZLIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/3rdParty/zlib/)
 
 ####### SET POSTFIX:
-set(CMAKE_DEBUG_POSTFIX             "d")
+if(NOT CMAKE_DEBUG_POSTFIX)
+    set(CMAKE_DEBUG_POSTFIX             "d")
+endif()
 set(CMAKE_RELEASE_POSTFIX           "")
 set(CMAKE_RELWITHDEBINFO_POSTFIX    "")
 set(CMAKE_MINSIZEREL_POSTFIX        "")
