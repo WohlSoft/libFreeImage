@@ -7,6 +7,12 @@
 
 set(archdetect_c_code "
 #if defined(__arm__) || defined(__TARGET_ARCH_ARM)
+    #if defined(__ARM_ARCH_8__)
+        || defined(__ARM_ARCH_8A__) \\
+        || defined(__ARM_ARCH_8R__) \\
+        || defined(__ARM_ARCH_8M__) \\
+        || (defined(__TARGET_ARCH_ARM) && __TARGET_ARCH_ARM-0 >= 8)) \\
+        #error cmake_ARCH arm64
     #if defined(__ARM_ARCH_7__) \\
         || defined(__ARM_ARCH_7A__) \\
         || defined(__ARM_ARCH_7R__) \\
