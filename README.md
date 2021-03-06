@@ -1,7 +1,7 @@
 # FreeImage
 FreeImage is an Open Source library to work with graphical file formats
 
-This is one of dependencies of PGE Project and LunaLua. 
+This is one of dependencies of Moondust Project, TheXTech, and LunaLua.
 
 # Differences from original
 * This is a lite version which supports only BMP, PNG, GIF, JPEG, and ICO. The reason of removing support for other formats is unnecessaryness of them in our projects.
