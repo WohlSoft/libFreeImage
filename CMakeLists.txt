@@ -438,6 +438,7 @@ if(WIN32)
     set(FREEIMAGE_SRC ${FREEIMAGE_SRC} Source/FreeImage/freeimage_misc.cpp)
 endif()
 
+
 set(FREEIMAGE_TARGETS)
 if(FREEIMAGE_STATIC)
     add_library(FreeImageLiteStatic STATIC ${FREEIMAGE_SRC})
@@ -449,6 +450,30 @@ if(FREEIMAGE_STATIC)
     target_include_directories(FreeImageLiteStatic PUBLIC "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}" "${FREEIMAGE_JPEG_INCLUDE}")
     target_compile_definitions(FreeImageLiteStatic PRIVATE ${FreeImage_Defs} "-DFREEIMAGE_LIB")
     list(APPEND FREEIMAGE_TARGETS FreeImageLiteStatic)
+    if(VITA)
+        target_link_libraries(FreeImageLiteStatic
+            jpeg
+            vitaGL
+            SceRtc_stub
+            SceNetCtl_stub
+            SceNet_stub
+            SceLibKernel_stub
+            ScePvf_stub
+            SceAppMgr_stub
+            SceAppUtil_stub
+            ScePgf_stub
+            freetype
+            png
+            SceCommonDialog_stub
+            m
+            z
+            SceGxm_stub
+            SceDisplay_stub
+            SceSysmodule_stub
+            SceTouch_stub
+            vitashark
+        )
+  endif()
 endif()
 
 if(FREEIMAGE_SHARED)
