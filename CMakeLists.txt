@@ -1,5 +1,30 @@
 cmake_minimum_required(VERSION 3.2)
 
+# Axiom Added this 7-10-2021
+if(DEFINED ENV{VITASDK})
+    message("VITASDK Defined!")
+    message("VITA BUILD!")
+    message("VITA BUILD!")
+    message("VITA BUILD!")
+    message("VITA BUILD!")
+    message("VITA BUILD!")
+    message("VITA BUILD!")
+    message("VITA BUILD!")
+    #set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
+    set(CMAKE_TOOLCHAIN_FILE "/usr/local/vitasdk/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
+
+    #include("${VITASDK}/share/vita.cmake" REQUIRED)
+    include ("/usr/local/vitasdk/share/vita.cmake" REQUIRED)
+
+    set(VITA 1)
+    # set(VITA_APP_NAME "TheXTech Vita Edition")
+    # set(VITA_TITLEID  "THEXTECH00001")
+    # set(VITA_VERSION  "01.00")
+
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
+
 ####### ADD PREDEFINED DEFINITIONS:
 SET(FREEIMAGE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 SET(LIBPNG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/3rdParty/LibPNG/)
@@ -31,6 +56,14 @@ option(FREEIMAGE_STATIC "Build static FreeImageLite" ON)
 
 option(FREEIMAGE_USE_SYSTEM_LIBPNG "Use external libPNG and ZLib" OFF)
 option(FREEIMAGE_USE_SYSTEM_LIBJPEG "Use external libJPEG" OFF)
+
+# Axiom Added 7-10-2021
+if(VITA)
+    message("VITA: Static.")
+    set(FREEIMAGE_SHARED OFF)
+    message("VITA: Use System LibPNG is ON")
+    set(FREEIMAGE_USE_SYSTEM_LIBPNG ON)
+endif()
 
 option(FREEIMAGE_ENABLE_JPEG "Enables JPEG support" ON)
 
