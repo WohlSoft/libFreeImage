@@ -1,19 +1,13 @@
 cmake_minimum_required(VERSION 3.2)
 
 # Axiom Added this 7-10-2021
-if(DEFINED ENV{VITASDK})
+if(Vita=1)
     message("VITASDK Defined!")
     message("VITA BUILD!")
-    #set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
-    set(CMAKE_TOOLCHAIN_FILE "/usr/local/vitasdk/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
-
-    #include("${VITASDK}/share/vita.cmake" REQUIRED)
-    include ("/usr/local/vitasdk/share/vita.cmake" REQUIRED)
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
+    include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
 
     set(VITA 1)
-    # set(VITA_APP_NAME "TheXTech Vita Edition")
-    # set(VITA_TITLEID  "THEXTECH00001")
-    # set(VITA_VERSION  "01.00")
 
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
