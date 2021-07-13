@@ -4,12 +4,6 @@ cmake_minimum_required(VERSION 3.2)
 if(DEFINED ENV{VITASDK})
     message("VITASDK Defined!")
     message("VITA BUILD!")
-    message("VITA BUILD!")
-    message("VITA BUILD!")
-    message("VITA BUILD!")
-    message("VITA BUILD!")
-    message("VITA BUILD!")
-    message("VITA BUILD!")
     #set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
     set(CMAKE_TOOLCHAIN_FILE "/usr/local/vitasdk/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
 
@@ -63,6 +57,7 @@ if(VITA)
     set(FREEIMAGE_SHARED OFF)
     message("VITA: Use System LibPNG is ON")
     set(FREEIMAGE_USE_SYSTEM_LIBPNG ON)
+    set(FREEIMAGE_USE_SYSTEM_LIBJPEG ON)
 endif()
 
 option(FREEIMAGE_ENABLE_JPEG "Enables JPEG support" ON)
@@ -451,29 +446,30 @@ if(FREEIMAGE_STATIC)
     target_compile_definitions(FreeImageLiteStatic PRIVATE ${FreeImage_Defs} "-DFREEIMAGE_LIB")
     list(APPEND FREEIMAGE_TARGETS FreeImageLiteStatic)
     if(VITA)
-        target_link_libraries(FreeImageLiteStatic
-            jpeg
-            vitaGL
-            SceRtc_stub
-            SceNetCtl_stub
-            SceNet_stub
-            SceLibKernel_stub
-            ScePvf_stub
-            SceAppMgr_stub
-            SceAppUtil_stub
-            ScePgf_stub
-            freetype
-            png
-            SceCommonDialog_stub
-            m
-            z
-            SceGxm_stub
-            SceDisplay_stub
-            SceSysmodule_stub
-            SceTouch_stub
-            vitashark
-        )
-  endif()
+        # target_compile_options(FreeImageLiteStatic PRIVATE --no-pie)
+        # target_link_libraries(FreeImageLiteStatic
+        #     jpeg
+        #     vitaGL
+        #     SceRtc_stub
+        #     SceNetCtl_stub
+        #     SceNet_stub
+        #     SceLibKernel_stub
+        #     ScePvf_stub
+        #     SceAppMgr_stub
+        #     SceAppUtil_stub
+        #     ScePgf_stub
+        #     freetype
+        #     png
+        #     SceCommonDialog_stub
+        #     m
+        #     z
+        #     SceGxm_stub
+        #     SceDisplay_stub
+        #     SceSysmodule_stub
+        #     SceTouch_stub
+        #     vitashark
+        # )
+    endif()
 endif()
 
 if(FREEIMAGE_SHARED)
