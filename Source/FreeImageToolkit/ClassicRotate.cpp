@@ -2,7 +2,7 @@
 // Bitmap rotation by means of 3 shears.
 //
 // Design and implementation by
-// - Hervé Drolon (drolon@infonie.fr)
+// - HervÃ© Drolon (drolon@infonie.fr)
 // - Thorsten Radde (support@IdealSoftware.com)
 // - Mihail Naydenov (mnaydenov@users.sourceforge.net)
 //
@@ -58,7 +58,7 @@ HorizontalSkewT(FIBITMAP *src, FIBITMAP *dst, int row, int iOffset, double weigh
 	const unsigned src_width  = FreeImage_GetWidth(src);
 	const unsigned dst_width  = FreeImage_GetWidth(dst);
 
-	T pxlSrc[4], pxlLeft[4], pxlOldLeft[4];	// 4 = 4*sizeof(T) max
+	T pxlSrc[16], pxlLeft[16], pxlOldLeft[16];	// 4 = 4*sizeof(T) max
 	
 	// background
 	const T pxlBlack[4] = {0, 0, 0, 0 };
@@ -189,7 +189,7 @@ VerticalSkewT(FIBITMAP *src, FIBITMAP *dst, int col, int iOffset, double weight,
 	unsigned src_height = FreeImage_GetHeight(src);
 	unsigned dst_height = FreeImage_GetHeight(dst);
 
-	T pxlSrc[4], pxlLeft[4], pxlOldLeft[4];	// 4 = 4*sizeof(T) max
+	T pxlSrc[16], pxlLeft[16], pxlOldLeft[16];	// 4 = 4*sizeof(T) max
 
 	// background
 	const T pxlBlack[4] = {0, 0, 0, 0 };
