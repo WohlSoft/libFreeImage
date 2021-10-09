@@ -54,10 +54,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			BYTE *pvalue = (BYTE*)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%ld",	(LONG) pvalue[0]);
+			sprintf(format, "%ld",	(long) pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %ld",	(LONG) pvalue[i]);
+				sprintf(format, " %ld",	(long) pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -78,10 +78,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			DWORD *pvalue = (DWORD *)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%lu", pvalue[0]);
+			sprintf(format, "%lu", (unsigned long)pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %lu",	pvalue[i]);
+				sprintf(format, " %lu",	(unsigned long)pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -90,10 +90,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			DWORD *pvalue = (DWORD*)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%ld/%ld", pvalue[0], pvalue[1]);
+			sprintf(format, "%ld/%ld", (long)pvalue[0], (long)pvalue[1]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %ld/%ld", pvalue[2*i], pvalue[2*i+1]);
+				sprintf(format, " %ld/%ld", (long)pvalue[2*i], (long)pvalue[2*i+1]);
 				buffer += format;
 			}
 			break;
@@ -102,10 +102,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			char *pvalue = (char*)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%ld",	(LONG) pvalue[0]);
+			sprintf(format, "%ld",	(long) pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %ld",	(LONG) pvalue[i]);
+				sprintf(format, " %ld",	(long) pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -126,10 +126,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			LONG *pvalue = (LONG *)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%ld", pvalue[0]);
+			sprintf(format, "%ld", (long)pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %ld",	pvalue[i]);
+				sprintf(format, " %ld",	(long)pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -138,10 +138,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			LONG *pvalue = (LONG*)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%ld/%ld", pvalue[0], pvalue[1]);
+			sprintf(format, "%ld/%ld", (long)pvalue[0], (long)pvalue[1]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, " %ld/%ld", pvalue[2*i], pvalue[2*i+1]);
+				sprintf(format, " %ld/%ld", (long)pvalue[2*i], (long)pvalue[2*i+1]);
 				buffer += format;
 			}
 			break;
@@ -199,10 +199,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			UINT64 *pvalue = (UINT64 *)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%lld", pvalue[0]);
+			sprintf(format, "%lld", (long long)pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, "%lld", pvalue[i]);
+				sprintf(format, "%lld", (long long)pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -212,10 +212,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			UINT64 *pvalue = (UINT64 *)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%llX", pvalue[0]);
+			sprintf(format, "%llX", (unsigned long long)pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, "%llX", pvalue[i]);
+				sprintf(format, "%llX", (unsigned long long)pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -225,10 +225,10 @@ ConvertAnyTag(FITAG *tag) {
 		{
 			INT64 *pvalue = (INT64 *)FreeImage_GetTagValue(tag);
 
-			sprintf(format, "%lld", pvalue[0]);
+			sprintf(format, "%lld", (long long)pvalue[0]);
 			buffer += format;
 			for(i = 1; i < tag_count; i++) {
-				sprintf(format, "%lld", pvalue[i]);
+				sprintf(format, "%lld", (long long)pvalue[i]);
 				buffer += format;
 			}
 			break;
@@ -536,7 +536,7 @@ ConvertExifTag(FITAG *tag) {
 		case TAG_SUBJECT_DISTANCE:
 		{
 			FIRational r(tag);
-			if(r.getNumerator() == 0xFFFFFFFF) {
+			if((unsigned long)r.getNumerator() == 0xFFFFFFFF) {
 				return "Infinity";
 			} else if(r.getNumerator() == 0) {
 				return "Distance unknown";
@@ -1070,7 +1070,7 @@ ConvertExifGPSTag(FITAG *tag) {
 //
 
 const char* DLL_CALLCONV
-FreeImage_TagToString(FREE_IMAGE_MDMODEL model, FITAG *tag, char *Make) {
+FreeImage_TagToString(FREE_IMAGE_MDMODEL model, FITAG *tag, char * /*Make*/) {
 	switch(model) {
 		case FIMD_EXIF_MAIN:
 		case FIMD_EXIF_EXIF:
