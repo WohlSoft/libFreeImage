@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.2)
 
+include(CheckCCompilerFlag)
+include(CheckCXXCompilerFlag)
+
 ####### ADD PREDEFINED DEFINITIONS:
 SET(FREEIMAGE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 SET(LIBPNG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/3rdParty/LibPNG/)
@@ -70,20 +73,86 @@ endif()
 ####### COMPILER FLAGS
 set(CMAKE_CXX_STANDARD 11)
 
-if(NOT MSVC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall \
-                -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter \
-                -Wno-sign-compare -Wno-unused-function -Wno-implicit-function-declaration -Wno-pointer-sign \
-                -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter \
-                -Wno-parentheses -Wno-switch -Wno-unused-result -Wno-format -Wno-sign-compare -Wno-unused-value \
-                -Wno-type-limits")
+macro(fi_add_c_warning_flag WARNINGFLAG WARNING_VAR)
+    check_c_compiler_flag("${WARNINGFLAG}" HAVE_CW_${WARNING_VAR})
+    if(HAVE_CW_${WARNING_VAR})
+       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNINGFLAG}")
+    endif()
+endmacro()
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall \
-                -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter \
-                -Wno-sign-compare -Wno-unused-function \
-                -Wno-missing-field-initializers -Wno-unused-variable -Wno-unused-parameter  \
-                -Wno-parentheses -Wno-switch -Wno-unused-result -Wno-format -Wno-unused-value \
-                -Wno-type-limits -Wno-reorder")
+macro(fi_add_cxx_warning_flag WARNINGFLAG WARNING_VAR)
+    check_cxx_compiler_flag("${WARNINGFLAG}" HAVE_CXXW_${WARNING_VAR})
+    if(HAVE_CXXW_${WARNING_VAR})
+       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNINGFLAG}")
+    endif()
+endmacro()
+
+macro(fi_disable_c_warning_flag WARNINGFLAG WARNING_VAR)
+    check_c_compiler_flag("-W${WARNINGFLAG}" HAVE_CW_${WARNING_VAR})
+    if(HAVE_CW_${WARNING_VAR})
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-${WARNINGFLAG}")
+    endif()
+endmacro()
+
+macro(fi_disable_cxx_warning_flag WARNINGFLAG WARNING_VAR)
+    check_cxx_compiler_flag("-W${WARNINGFLAG}" HAVE_CXXW_${WARNING_VAR})
+    if(HAVE_CXXW_${WARNING_VAR})
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-${WARNINGFLAG}")
+    endif()
+endmacro()
+
+if(NOT MSVC)
+    fi_disable_c_warning_flag("all" ALL)
+    fi_disable_cxx_warning_flag("all" ALL)
+
+    fi_disable_c_warning_flag("missing-field-initializers" MISSING_FIELD_INITIALIZERS)
+    fi_disable_c_warning_flag("unused-variable" UNUSED_VARIABLE)
+    fi_disable_c_warning_flag("unused-parameter" UNUSED_PARAMENTER)
+    fi_disable_c_warning_flag("sign-compare" SIGN_COMPARE)
+    fi_disable_c_warning_flag("unused-function" UNUSED_FUNCTION)
+    fi_disable_c_warning_flag("pointer-sign" POINTER_SIGN)
+    fi_disable_c_warning_flag("missing-field-initializers" MISSING_FIELD_INITIALIZERS)
+    fi_disable_c_warning_flag("unused-variable" UNUSED_VARIABLE)
+    fi_disable_c_warning_flag("unused-parameter" UNUSED_PARAMETER)
+    fi_disable_c_warning_flag("parentheses" PARENTHESES)
+    fi_disable_c_warning_flag("switch" SWITCH)
+    fi_disable_c_warning_flag("unused-result" UNUSED_RESULT)
+    fi_disable_c_warning_flag("format" FORMAT)
+    fi_disable_c_warning_flag("format-security" FORMAT_SECURITY)
+    fi_disable_c_warning_flag("unused-value" UNUSED)
+    fi_disable_c_warning_flag("type-limits" TYPE_LIMITS)
+
+    fi_disable_cxx_warning_flag("missing-field-initializers" MISSING_FIELD_INITIALIZERS)
+    fi_disable_cxx_warning_flag("unused-variable" UNUSED_VARIABLE)
+    fi_disable_cxx_warning_flag("unused-parameter" UNUSED_PARAMENTER)
+    fi_disable_cxx_warning_flag("sign-compare" SIGN_COMPARE)
+    fi_disable_cxx_warning_flag("unused-function" UNUSED_FUNCTION)
+    fi_disable_cxx_warning_flag("missing-field-initializers" MISSING_FIELD_INITIALIZERS)
+    fi_disable_cxx_warning_flag("unused-variable" UNUSED_VARIABLE)
+    fi_disable_cxx_warning_flag("unused-parameter" UNUSED_PARAMETER)
+    fi_disable_cxx_warning_flag("parentheses" PARENTHESES)
+    fi_disable_cxx_warning_flag("switch" SWITCH)
+    fi_disable_cxx_warning_flag("unused-result" UNUSED_RESULT)
+    fi_disable_cxx_warning_flag("format" FORMAT)
+    fi_disable_cxx_warning_flag("format-security" FORMAT_SECURITY)
+    fi_disable_cxx_warning_flag("unused-value" UNUSED)
+    fi_disable_cxx_warning_flag("type-limits" TYPE_LIMITS)
+    fi_disable_cxx_warning_flag("reorder" REORDER)
+
+    fi_disable_c_warning_flag("unused-const-variable" UNUSED_CONST_VARIABLE)
+    fi_disable_cxx_warning_flag("unused-const-variable" UNUSED_CONST_VARIABLE)
+    fi_disable_c_warning_flag("uninitialized" UNINITIALIZED)
+    fi_disable_cxx_warning_flag("uninitialized" UNINITIALIZED)
+    fi_disable_cxx_warning_flag("header-guard" HEADER_GUARD)
+    fi_disable_cxx_warning_flag("ctor-dtor-privacy" CTOR_DTOR_PRIVACY)
+
+    fi_disable_c_warning_flag("unused-but-set-variable" UNUSED_BUT_SET_VARIABLE)
+    fi_disable_cxx_warning_flag("unused-but-set-variable" UNUSED_BUT_SET_VARIABLE)
+    fi_disable_c_warning_flag("maybe-uninitialized" MAYBE_UNINITIALIZED)
+    fi_disable_cxx_warning_flag("maybe-uninitialized" MAYBE_UNINITIALIZED)
+
+    fi_disable_c_warning_flag("old-style-declaration" OLD_STYLE_DECLARATIONS)
+    fi_disable_cxx_warning_flag("no-clobbered" CLOBBERED)
 endif()
 
 if(MSVC)
@@ -103,14 +172,8 @@ if(APPLE)
         CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-const-variable -Wno-uninitialized -fexceptions -fvisibility=hidden")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-const-variable -Wno-uninitialized -Wno-header-guard -fexceptions \
-                                            -fvisibility=hidden -Wno-ctor-dtor-privacy -stdlib=libc++ -Wc++11-narrowing")
-else()
-    if(NOT MSVC AND NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "^(Apple)?Clang$")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-old-style-declaration")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-clobbered")
-    endif()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fexceptions -fvisibility=hidden")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -fvisibility=hidden -stdlib=libc++ -Wc++11-narrowing")
 endif()
 
 ####### INCLUDE PATHS
