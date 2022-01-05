@@ -255,7 +255,11 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
         FREEIMAGE_USE_INTERNAL_LIBPNG
     )
 
-    option(PNG_HARDWARE_OPTIMIZATIONS "Enable Hardware Optimizations" ON)
+    if(VITA)
+        set(PNG_HARDWARE_OPTIMIZATIONS OFF)
+    else()
+        option(PNG_HARDWARE_OPTIMIZATIONS "Enable Hardware Optimizations" ON)
+    endif()
 
     if(PNG_HARDWARE_OPTIMIZATIONS)
 
