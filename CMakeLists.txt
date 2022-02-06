@@ -255,11 +255,7 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
         FREEIMAGE_USE_INTERNAL_LIBPNG
     )
 
-    if(VITA)
-        set(PNG_HARDWARE_OPTIMIZATIONS OFF)
-    else()
-        option(PNG_HARDWARE_OPTIMIZATIONS "Enable Hardware Optimizations" ON)
-    endif()
+    option(PNG_HARDWARE_OPTIMIZATIONS "Enable Hardware Optimizations" ON)
 
     if(PNG_HARDWARE_OPTIMIZATIONS)
 
@@ -276,6 +272,11 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
                 check: (default) use internal checking code;
                 off: disable the optimizations;
                 on: turn on unconditionally.")
+
+            if(VITA)
+                set(PNG_ARM_NEON "on") # Force this on for PS Vita to build with optimizations.
+            endif()
+
             set_property(CACHE PNG_ARM_NEON PROPERTY STRINGS ${PNG_ARM_NEON_POSSIBLE_VALUES})
             list(FIND PNG_ARM_NEON_POSSIBLE_VALUES ${PNG_ARM_NEON} index)
             if(index EQUAL -1)
