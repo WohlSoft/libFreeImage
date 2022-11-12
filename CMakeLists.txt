@@ -173,7 +173,14 @@ if(APPLE)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fexceptions -fvisibility=hidden")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -fvisibility=hidden -stdlib=libc++ -Wc++11-narrowing")
+
+    check_cxx_compiler_flag("-stdlib=libc++" HAS_STDLIB_LIBCPP_FLAG)
+    if(HAS_STDLIB_LIBCPP_FLAG)
+        set(CXX_FLAG_STDLIB_LIBCPP "-stdlib=libc++")
+    endif()
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -fvisibility=hidden ${CXX_FLAG_STDLIB_LIBCPP}")
+    fi_add_cxx_warning_flag("c++11-narrowing" CPP11_NARROWING)
 endif()
 
 ####### INCLUDE PATHS
