@@ -226,8 +226,6 @@ set(FREEIMAGE_SRC ${CMAKE_CURRENT_SOURCE_DIR}
     Source/FreeImage/LFPQuantizer.cpp
     Source/FreeImage/NNQuantizer.cpp
     Source/FreeImage/WuQuantizer.cpp
-    Source/DeprecationManager/Deprecated.cpp
-    Source/DeprecationManager/DeprecationMgr.cpp
     Source/FreeImage/CacheFile.cpp
     Source/FreeImage/MultiPage.cpp
     Source/FreeImage/ZLibInterface.cpp
