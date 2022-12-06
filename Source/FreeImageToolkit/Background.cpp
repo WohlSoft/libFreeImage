@@ -186,19 +186,19 @@ GetPaletteIndex(FIBITMAP *dib, const RGBQUAD *color, int options, FREE_IMAGE_COL
 static BOOL
 GetAlphaBlendedColor(const RGBQUAD *bgcolor, const RGBQUAD *fgcolor, RGBQUAD *blended) {
 
-    if ((!bgcolor) || (!fgcolor) || (!blended)) {
-        return FALSE;
-    }
+	if ((!bgcolor) || (!fgcolor) || (!blended)) {
+		return FALSE;
+	}
 
-    BYTE alpha = fgcolor->rgbReserved;
-    BYTE not_alpha = ~alpha;
+	BYTE alpha = fgcolor->rgbReserved;
+	BYTE not_alpha = ~alpha;
 
-    blended->rgbRed   = (BYTE)( ((WORD)fgcolor->rgbRed * alpha + not_alpha * (WORD)bgcolor->rgbRed)   >> 8 );
-    blended->rgbGreen = (BYTE)( ((WORD)fgcolor->rgbGreen * alpha + not_alpha * (WORD)bgcolor->rgbGreen) >> 8) ;
-    blended->rgbBlue  = (BYTE)( ((WORD)fgcolor->rgbBlue * alpha + not_alpha * (WORD)bgcolor->rgbBlue)  >> 8 );
-    blended->rgbReserved = 0xFF;
+	blended->rgbRed   = (BYTE)( ((WORD)fgcolor->rgbRed * alpha + not_alpha * (WORD)bgcolor->rgbRed)   >> 8 );
+	blended->rgbGreen = (BYTE)( ((WORD)fgcolor->rgbGreen * alpha + not_alpha * (WORD)bgcolor->rgbGreen) >> 8) ;
+	blended->rgbBlue  = (BYTE)( ((WORD)fgcolor->rgbBlue * alpha + not_alpha * (WORD)bgcolor->rgbBlue)  >> 8 );
+	blended->rgbReserved = 0xFF;
 
-    return TRUE;
+	return TRUE;
 }
 
 /** @brief Fills a FIT_BITMAP image with the specified color.
