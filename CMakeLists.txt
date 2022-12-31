@@ -32,7 +32,8 @@ list(APPEND FreeImage_Defs
 option(FREEIMAGE_SHARED "Build shared FreeImageLite" ON)
 option(FREEIMAGE_STATIC "Build static FreeImageLite" ON)
 
-option(FREEIMAGE_USE_SYSTEM_LIBPNG "Use external libPNG and ZLib" OFF)
+option(FREEIMAGE_USE_SYSTEM_LIBPNG "Use external libPNG" OFF)
+option(FREEIMAGE_USE_SYSTEM_ZLIB "Use external ZLib" OFF)
 option(FREEIMAGE_USE_SYSTEM_LIBJPEG "Use external libJPEG" OFF)
 
 option(FREEIMAGE_ENABLE_JPEG "Enables JPEG support" ON)
@@ -47,13 +48,15 @@ set(FREEIMAGE_ZLIB_INCLUDE "" CACHE STRING "Path to Zlib include")
 
 set(FREEIMAGE_JPEG_INCLUDE "" CACHE STRING "Path to libJPEG include")
 
-if(FREEIMAGE_USE_SYSTEM_LIBPNG)
+if(FREEIMAGE_USE_SYSTEM_ZLIB)
     if(NOT FREEIMAGE_ZLIB_LIB OR NOT FREEIMAGE_ZLIB_INCLUDE)
         find_package(ZLIB REQUIRED)
         set(FREEIMAGE_ZLIB_LIB ${ZLIB_LIBRARIES})
         set(FREEIMAGE_ZLIB_INCLUDE ${ZLIB_INCLUDE_DIRS})
     endif()
+endif()
 
+if(FREEIMAGE_USE_SYSTEM_LIBPNG)
     if(NOT FREEIMAGE_PNG_LIB OR NOT FREEIMAGE_PNG_INCLUDE)
         find_package(PNG REQUIRED)
         set(FREEIMAGE_PNG_LIB ${PNG_LIBRARIES})
@@ -255,6 +258,28 @@ if(FREEIMAGE_ENABLE_JPEG)
     )
 endif()
 
+if(NOT FREEIMAGE_USE_SYSTEM_ZLIB)
+    list(APPEND FREEIMAGE_SRC
+        Source/3rdParty/ZLib/adler32.c
+        Source/3rdParty/ZLib/compress.c
+        Source/3rdParty/ZLib/crc32.c
+        Source/3rdParty/ZLib/deflate.c
+        Source/3rdParty/ZLib/gzclose.c
+        Source/3rdParty/ZLib/gzlib.c
+        Source/3rdParty/ZLib/gzread.c
+        Source/3rdParty/ZLib/gzwrite.c
+        Source/3rdParty/ZLib/infback.c
+        Source/3rdParty/ZLib/inffast.c
+        Source/3rdParty/ZLib/inflate.c
+        Source/3rdParty/ZLib/inftrees.c
+        Source/3rdParty/ZLib/trees.c
+        Source/3rdParty/ZLib/uncompr.c
+        Source/3rdParty/ZLib/zutil.c
+    )
+
+    set(FREEIMAGE_ZLIB_INCLUDE "Source/3rdParty/ZLib")
+endif()
+
 if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
     list(APPEND FreeImage_Defs
         FREEIMAGE_USE_INTERNAL_LIBPNG
@@ -397,23 +422,7 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
         ${libpng_intel_sources}
         ${libpng_mips_sources}
         ${libpng_powerpc_sources}
-        Source/3rdParty/ZLib/adler32.c
-        Source/3rdParty/ZLib/compress.c
-        Source/3rdParty/ZLib/crc32.c
-        Source/3rdParty/ZLib/deflate.c
-        Source/3rdParty/ZLib/gzclose.c
-        Source/3rdParty/ZLib/gzlib.c
-        Source/3rdParty/ZLib/gzread.c
-        Source/3rdParty/ZLib/gzwrite.c
-        Source/3rdParty/ZLib/infback.c
-        Source/3rdParty/ZLib/inffast.c
-        Source/3rdParty/ZLib/inflate.c
-        Source/3rdParty/ZLib/inftrees.c
-        Source/3rdParty/ZLib/trees.c
-        Source/3rdParty/ZLib/uncompr.c
-        Source/3rdParty/ZLib/zutil.c
     )
-    set(FREEIMAGE_ZLIB_INCLUDE "Source/3rdParty/ZLib")
     set(FREEIMAGE_PNG_INCLUDE "Source/3rdParty/LibPNG")
 endif()
 
