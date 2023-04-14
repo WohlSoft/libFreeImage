@@ -278,7 +278,7 @@ int StringTable::CompressEnd(BYTE *buf)
 
 bool StringTable::Compress(BYTE *buf, int *len)
 {
-	if( m_bufferSize == 0 || m_done ) {
+	if( m_bufferSize == 0 || m_done || !m_strmap ) {
 		return false;
 	}
 
