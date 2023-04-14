@@ -89,6 +89,7 @@ public:
 
 protected:
 	bool m_done;
+	bool m_compressor_table_inited;
 
 	int m_minCodeSize, m_clearCode, m_endCode, m_nextCode;
 
@@ -187,7 +188,11 @@ StringTable::StringTable()
 	// Maximum number of entries in the map is MAX_LZW_CODE * 256 
 	// (aka 2**12 * 2**8 => a 20 bits key)
 	// This Map could be optmized to only handle MAX_LZW_CODE * 2**(m_bpp)
-	m_strmap = new(std::nothrow) int[1<<20];
+
+	m_compressor_table_inited = false;
+	// lazily initialize this on first requested compression
+	m_strmap = NULL;
+	// m_strmap = new(std::nothrow) int[1<<20];
 }
 
 StringTable::~StringTable()
@@ -217,7 +222,8 @@ void StringTable::Initialize(int minCodeSize)
 	m_partialSize = 0;
 
 	m_bufferSize = 0;
-	ClearCompressorTable();
+	if(m_compressor_table_inited)
+		ClearCompressorTable();
 	ClearDecompressorTable();
 }
 
@@ -437,6 +443,12 @@ void StringTable::Done(void)
 
 void StringTable::ClearCompressorTable(void)
 {
+	if(!m_compressor_table_inited)
+	{
+		m_strmap = new(std::nothrow) int[1<<20];
+		m_compressor_table_inited = true;
+	}
+
 	if(m_strmap) {
 		memset(m_strmap, 0xFF, sizeof(unsigned int)*(1<<20));
 	}
