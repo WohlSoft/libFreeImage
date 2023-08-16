@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.2...3.5)
 
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
+include(CheckIncludeFile)
+include(CheckSymbolExists)
+include(CheckCSourceCompiles)
+include(CheckTypeSize)
+include(CheckFunctionExists)
 
 ####### ADD PREDEFINED DEFINITIONS:
 SET(FREEIMAGE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
@@ -160,7 +165,7 @@ endif()
 
 if(MSVC)
     # Disable bogus MSVC warnings
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
     # Enable unwind for ARM builds
     if(${MSVC_C_ARCHITECTURE_ID} MATCHES "ARM")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /EHsc")
@@ -258,7 +263,40 @@ if(FREEIMAGE_ENABLE_JPEG)
     )
 endif()
 
+# Directory for special kind of includes
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/")
+
 if(NOT FREEIMAGE_USE_SYSTEM_ZLIB)
+    check_include_file(sys/types.h HAVE_SYS_TYPES_H)
+    check_include_file(stdint.h    HAVE_STDINT_H)
+    check_include_file(stddef.h    HAVE_STDDEF_H)
+
+    set(CMAKE_REQUIRED_DEFINITIONS -D_LARGEFILE64_SOURCE=1)
+    if(HAVE_SYS_TYPES_H)
+        list(APPEND CMAKE_REQUIRED_DEFINITIONS -DHAVE_SYS_TYPES_H)
+    endif()
+    if(HAVE_STDINT_H)
+        list(APPEND CMAKE_REQUIRED_DEFINITIONS -DHAVE_STDINT_H)
+    endif()
+    if(HAVE_STDDEF_H)
+        list(APPEND CMAKE_REQUIRED_DEFINITIONS -DHAVE_STDDEF_H)
+    endif()
+    check_type_size(off64_t OFF64_T)
+    if(HAVE_OFF64_T)
+       add_definitions(-D_LARGEFILE64_SOURCE=1)
+    endif()
+    set(CMAKE_REQUIRED_DEFINITIONS) # clear variable
+
+    check_function_exists(fseeko HAVE_FSEEKO)
+    if(NOT HAVE_FSEEKO)
+        add_definitions(-DNO_FSEEKO)
+    endif()
+
+    check_include_file(unistd.h Z_HAVE_UNISTD_H)
+
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Source/3rdParty/ZLib/zconf.h.cmakein
+                   ${CMAKE_CURRENT_BINARY_DIR}/include/zconf.h @ONLY)
+
     list(APPEND FREEIMAGE_SRC
         Source/3rdParty/ZLib/adler32.c
         Source/3rdParty/ZLib/compress.c
@@ -288,7 +326,6 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
     option(PNG_HARDWARE_OPTIMIZATIONS "Enable Hardware Optimizations" ON)
 
     if(PNG_HARDWARE_OPTIMIZATIONS)
-
         include(${CMAKE_CURRENT_SOURCE_DIR}/TargetArch.cmake)
 
         target_architecture(TARGET_PROCESSOR)
@@ -315,7 +352,8 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
                 set(libpng_arm_sources
                     Source/3rdParty/LibPNG/arm/arm_init.c
                     Source/3rdParty/LibPNG/arm/filter_neon.S
-                    Source/3rdParty/LibPNG/arm/filter_neon_intrinsics.c)
+                    Source/3rdParty/LibPNG/arm/filter_neon_intrinsics.c
+                    Source/3rdParty/LibPNG/arm/palette_neon_intrinsics.c)
                 if(${PNG_ARM_NEON} STREQUAL "on")
                     list(APPEND FreeImage_Defs PNG_ARM_NEON_OPT=2)
                     message("--- PNG NEON is ON ---")
@@ -431,6 +469,43 @@ if(FREEIMAGE_ENABLE_JPEG AND NOT FREEIMAGE_USE_SYSTEM_LIBJPEG)
         FREEIMAGE_USE_INTERNAL_LIBJPEG
     )
 
+    check_include_file(stddef.h HAVE_STDDEF_H)
+    check_include_file(stdlib.h HAVE_STDLIB_H)
+    check_include_file(string.h HAVE_STRING_H)
+    check_symbol_exists(size_t stddef.h stdlib.h stdio.h HAVE_ANSI_SIZE_T)
+    check_symbol_exists(setmode io.h USE_SETMODE)
+    check_c_source_compiles(
+    "
+    void f()
+    {
+        char x[ (char)0xff ]; /* x[-1] if signed */
+    }
+    "
+    CHAR_IS_UNSIGNED)
+
+    check_c_source_compiles(
+    "
+    void f()
+    {
+        char x[ ((signed char)0xff) >> 1 ]; /* x[-1] if signed */
+    }
+    "
+    RIGHT_SHIFT_IS_UNSIGNED)
+
+    if(NOT HAVE_STRING_H)
+        set(NEED_BSD_STRINGS TRUE)
+    else()
+        set(NEED_BSD_STRINGS FALSE)
+    endif()
+
+    if(NOT HAVE_ANSI_SIZE_T)
+        set(NEED_SYS_TYPES_H TRUE)
+    else()
+        set(NEED_SYS_TYPES_H FALSE)
+    endif()
+
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Source/3rdParty/LibJPEG/jconfig.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/jconfig.h")
+
     list(APPEND FREEIMAGE_SRC
         Source/3rdParty/LibJPEG/jaricom.c
         Source/3rdParty/LibJPEG/jcapimin.c
@@ -480,6 +555,7 @@ if(FREEIMAGE_ENABLE_JPEG AND NOT FREEIMAGE_USE_SYSTEM_LIBJPEG)
         Source/3rdParty/LibJPEG/jutils.c
         Source/3rdParty/LibJPEG/transupp.c
     )
+
     set(FREEIMAGE_JPEG_INCLUDE "Source/3rdParty/LibJPEG")
 endif()
 
@@ -495,7 +571,7 @@ if(FREEIMAGE_STATIC)
     else()
         set_target_properties(FreeImageLiteStatic PROPERTIES OUTPUT_NAME FreeImageLite)
     endif()
-    target_include_directories(FreeImageLiteStatic PUBLIC "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}" "${FREEIMAGE_JPEG_INCLUDE}")
+    target_include_directories(FreeImageLiteStatic PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/include" "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}" "${FREEIMAGE_JPEG_INCLUDE}")
     target_compile_definitions(FreeImageLiteStatic PRIVATE ${FreeImage_Defs} "-DFREEIMAGE_LIB")
     list(APPEND FREEIMAGE_TARGETS FreeImageLiteStatic)
 endif()
@@ -503,7 +579,7 @@ endif()
 if(FREEIMAGE_SHARED)
     add_library(FreeImageLiteShared SHARED ${FREEIMAGE_SRC})
     set_target_properties(FreeImageLiteShared PROPERTIES OUTPUT_NAME FreeImageLite)
-    target_include_directories(FreeImageLiteShared PUBLIC "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}" "${FREEIMAGE_JPEG_INCLUDE}")
+    target_include_directories(FreeImageLiteShared PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/include" "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}" "${FREEIMAGE_JPEG_INCLUDE}")
     target_link_libraries(FreeImageLiteShared PUBLIC "${FREEIMAGE_ZLIB_LIB}" "${FREEIMAGE_PNG_LIB}" "${FREEIMAGE_JPEG_LIB}")
     target_compile_definitions(FreeImageLiteShared PRIVATE ${FreeImage_Defs})
     list(APPEND FREEIMAGE_TARGETS FreeImageLiteShared)
