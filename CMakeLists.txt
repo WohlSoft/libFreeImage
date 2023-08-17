@@ -355,7 +355,7 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
                 set(PNG_ARM_NEON "off" CACHE STRING "PNG: Enable ARM NEON optimizations: check|on|off; off is default")
             endif()
 
-            if(PNG_ARM_NEON_NO_CACHE)
+            if(NOT PNG_ARM_NEON_NO_CACHE)
                 set_property(CACHE PNG_ARM_NEON PROPERTY STRINGS ${PNG_ARM_NEON_POSSIBLE_VALUES})
             endif()
 
