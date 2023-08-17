@@ -34,7 +34,12 @@ list(APPEND FreeImage_Defs
     "-DFREEIMAGE_BUILD"
 )
 
-option(FREEIMAGE_SHARED "Build shared FreeImageLite" ON)
+set(FREEIMAGE_SHARED_DEFAULT ON)
+if(VITA OR NINTENDO_DS OR NINTENDO_3DS OR NINTENDO_WII OR NINTENDO_WIIU OR NINTENDO_SWITCH)
+    set(FREEIMAGE_SHARED_DEFAULT OFF)
+endif()
+
+option(FREEIMAGE_SHARED "Build shared FreeImageLite" ${FREEIMAGE_SHARED_DEFAULT})
 option(FREEIMAGE_STATIC "Build static FreeImageLite" ON)
 
 option(FREEIMAGE_USE_SYSTEM_LIBPNG "Use external libPNG" OFF)
@@ -334,21 +339,28 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
         # set definitions and sources for arm
         if(${TARGET_PROCESSOR} MATCHES "arm.*")
             message("--- ARM detected ---")
-            set(PNG_ARM_NEON_POSSIBLE_VALUES check on off)
-            set(PNG_ARM_NEON "check" CACHE STRING "Enable ARM NEON optimizations:
-                check: (default) use internal checking code;
-                off: disable the optimizations;
-                on: turn on unconditionally.")
-
             if(VITA)
+                set(PNG_ARM_NEON_POSSIBLE_VALUES on off)
                 set(PNG_ARM_NEON "on") # Force this on for PS Vita to build with optimizations.
+            elseif(APPLE) # TODO: Fix the Apple ARM support
+                set(PNG_ARM_NEON_POSSIBLE_VALUES check on off)
+                set(PNG_ARM_NEON "off") # Force disable NEON on Apple, because of failures
+            elseif(${TARGET_PROCESSOR} MATCHES "arm64" OR ${TARGET_PROCESSOR} MATCHES "aarch64")
+                set(PNG_ARM_NEON_POSSIBLE_VALUES on off)
+                set(PNG_ARM_NEON "on" CACHE STRING "PNG: Enable ARM NEON optimizations: on|off; on is default")
+            else()
+                set(PNG_ARM_NEON_POSSIBLE_VALUES check on off)
+                set(PNG_ARM_NEON "off" CACHE STRING "PNG: Enable ARM NEON optimizations: check|on|off; off is default")
             endif()
 
-            set_property(CACHE PNG_ARM_NEON PROPERTY STRINGS ${PNG_ARM_NEON_POSSIBLE_VALUES})
+            set_property(CACHE PNG_ARM_NEON
+                         PROPERTY STRINGS ${PNG_ARM_NEON_POSSIBLE_VALUES})
+
             list(FIND PNG_ARM_NEON_POSSIBLE_VALUES ${PNG_ARM_NEON} index)
+
             if(index EQUAL -1)
                 message(FATAL_ERROR " PNG_ARM_NEON must be one of [${PNG_ARM_NEON_POSSIBLE_VALUES}]")
-            elseif(NOT ${PNG_ARM_NEON} STREQUAL "no" AND NOT APPLE) # TODO: Fix the Apple ARM support
+            elseif(NOT ${PNG_ARM_NEON} STREQUAL "off")
                 set(libpng_arm_sources
                     Source/3rdParty/LibPNG/arm/arm_init.c
                     Source/3rdParty/LibPNG/arm/filter_neon.S
@@ -373,10 +385,10 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
         if(${TARGET_PROCESSOR} MATCHES "ppc.*")
             message("--- PowerPC detected ---")
             set(PNG_POWERPC_VSX_POSSIBLE_VALUES on off)
-            set(PNG_POWERPC_VSX "on" CACHE STRING "Enable POWERPC VSX optimizations:
-                off: disable the optimizations.")
+            set(PNG_POWERPC_VSX "on" CACHE STRING "Enable POWERPC VSX optimizations: on|off; on is default")
             set_property(CACHE PNG_POWERPC_VSX PROPERTY STRINGS ${PNG_POWERPC_VSX_POSSIBLE_VALUES})
             list(FIND PNG_POWERPC_VSX_POSSIBLE_VALUES ${PNG_POWERPC_VSX} index)
+
             if(index EQUAL -1)
                 message(FATAL_ERROR
                 " PNG_POWERPC_VSX must be one of [${PNG_POWERPC_VSX_POSSIBLE_VALUES}]")
