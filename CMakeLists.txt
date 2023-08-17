@@ -342,9 +342,11 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
             if(VITA)
                 set(PNG_ARM_NEON_POSSIBLE_VALUES on off)
                 set(PNG_ARM_NEON "on") # Force this on for PS Vita to build with optimizations.
+                set(PNG_ARM_NEON_NO_CACHE TRUE)
             elseif(APPLE) # TODO: Fix the Apple ARM support
                 set(PNG_ARM_NEON_POSSIBLE_VALUES check on off)
                 set(PNG_ARM_NEON "off") # Force disable NEON on Apple, because of failures
+                set(PNG_ARM_NEON_NO_CACHE TRUE)
             elseif(${TARGET_PROCESSOR} MATCHES "arm64" OR ${TARGET_PROCESSOR} MATCHES "aarch64")
                 set(PNG_ARM_NEON_POSSIBLE_VALUES on off)
                 set(PNG_ARM_NEON "on" CACHE STRING "PNG: Enable ARM NEON optimizations: on|off; on is default")
@@ -353,8 +355,9 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
                 set(PNG_ARM_NEON "off" CACHE STRING "PNG: Enable ARM NEON optimizations: check|on|off; off is default")
             endif()
 
-            set_property(CACHE PNG_ARM_NEON
-                         PROPERTY STRINGS ${PNG_ARM_NEON_POSSIBLE_VALUES})
+            if(PNG_ARM_NEON_NO_CACHE)
+                set_property(CACHE PNG_ARM_NEON PROPERTY STRINGS ${PNG_ARM_NEON_POSSIBLE_VALUES})
+            endif()
 
             list(FIND PNG_ARM_NEON_POSSIBLE_VALUES ${PNG_ARM_NEON} index)
 
