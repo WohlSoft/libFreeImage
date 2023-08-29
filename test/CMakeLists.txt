@@ -1,0 +1,6 @@
+add_executable(load_file load_file.cpp)
+if(FREEIMAGE_SHARED)
+    target_link_libraries(load_file PRIVATE FreeImageLiteShared)
+else()
+    target_link_libraries(load_file PRIVATE FreeImageLiteStatic)
+endif()

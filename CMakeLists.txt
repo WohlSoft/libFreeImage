@@ -611,3 +611,8 @@ install(TARGETS ${FREEIMAGE_TARGETS}
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
 )
+
+option(FREEIMAGE_BUILD_TESTS "Do build of test applications" OFF)
+if(FREEIMAGE_BUILD_TESTS)
+    add_subdirectory(test)
+endif()
