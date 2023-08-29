@@ -574,15 +574,23 @@ Open(FreeImageIO *io, fi_handle handle, BOOL read) {
 			//Scan through all the rest of the blocks, saving offsets
 			size_t gce_offset = 0;
 			BYTE block = 0;
+			BOOL has_images = FALSE;
 			while( block != GIF_BLOCK_TRAILER ) {
 				if( io->read_proc(&block, 1, 1, handle) < 1 ) {
-					throw "EOF reading blocks";
+					if( !has_images ) {
+						throw "EOF reading blocks";
+					} else {
+						//Some files don't contain the file trailer, so, give it
+						block = GIF_BLOCK_TRAILER;
+						continue;
+					}
 				}
 				if( block == GIF_BLOCK_IMAGE_DESCRIPTOR ) {
 					info->image_descriptor_offsets.push_back(io->tell_proc(handle));
 					//GCE may be 0, meaning no GCE preceded this ID
 					info->graphic_control_extension_offsets.push_back(gce_offset);
 					gce_offset = 0;
+					has_images = TRUE;
 
 					io->seek_proc(handle, 8, SEEK_CUR);
 					if( io->read_proc(&packed, 1, 1, handle) < 1 ) {
