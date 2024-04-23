@@ -8,6 +8,19 @@ include(CheckCSourceCompiles)
 include(CheckTypeSize)
 include(CheckFunctionExists)
 
+# Axiom Added this 7-10-2021
+if(Vita=1)
+    message("VITASDK Defined!")
+    message("VITA BUILD!")
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
+    include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
+
+    set(VITA 1)
+
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
+
 ####### ADD PREDEFINED DEFINITIONS:
 SET(FREEIMAGE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 SET(LIBPNG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/3rdParty/LibPNG/)
@@ -45,6 +58,15 @@ option(FREEIMAGE_STATIC "Build static FreeImageLite" ON)
 option(FREEIMAGE_USE_SYSTEM_LIBPNG "Use external libPNG" OFF)
 option(FREEIMAGE_USE_SYSTEM_ZLIB "Use external ZLib" OFF)
 option(FREEIMAGE_USE_SYSTEM_LIBJPEG "Use external libJPEG" OFF)
+
+# Axiom Added 7-10-2021
+if(VITA)
+    message("VITA: Static.")
+    set(FREEIMAGE_SHARED OFF)
+    message("VITA: Use System LibPNG is ON")
+    set(FREEIMAGE_USE_SYSTEM_LIBPNG ON)
+    set(FREEIMAGE_USE_SYSTEM_LIBJPEG ON)
+endif()
 
 option(FREEIMAGE_ENABLE_JPEG "Enables JPEG support" ON)
 
@@ -578,6 +600,7 @@ if(WIN32)
     set(FREEIMAGE_SRC ${FREEIMAGE_SRC} Source/FreeImage/freeimage_misc.cpp)
 endif()
 
+
 set(FREEIMAGE_TARGETS)
 if(FREEIMAGE_STATIC)
     add_library(FreeImageLiteStatic STATIC ${FREEIMAGE_SRC})
@@ -589,6 +612,31 @@ if(FREEIMAGE_STATIC)
     target_include_directories(FreeImageLiteStatic PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/include" "${FREEIMAGE_ZLIB_INCLUDE}" "${FREEIMAGE_PNG_INCLUDE}" "${FREEIMAGE_JPEG_INCLUDE}")
     target_compile_definitions(FreeImageLiteStatic PRIVATE ${FreeImage_Defs} "-DFREEIMAGE_LIB")
     list(APPEND FREEIMAGE_TARGETS FreeImageLiteStatic)
+    if(VITA)
+        # target_compile_options(FreeImageLiteStatic PRIVATE --no-pie)
+        # target_link_libraries(FreeImageLiteStatic
+        #     jpeg
+        #     vitaGL
+        #     SceRtc_stub
+        #     SceNetCtl_stub
+        #     SceNet_stub
+        #     SceLibKernel_stub
+        #     ScePvf_stub
+        #     SceAppMgr_stub
+        #     SceAppUtil_stub
+        #     ScePgf_stub
+        #     freetype
+        #     png
+        #     SceCommonDialog_stub
+        #     m
+        #     z
+        #     SceGxm_stub
+        #     SceDisplay_stub
+        #     SceSysmodule_stub
+        #     SceTouch_stub
+        #     vitashark
+        # )
+    endif()
 endif()
 
 if(FREEIMAGE_SHARED)
