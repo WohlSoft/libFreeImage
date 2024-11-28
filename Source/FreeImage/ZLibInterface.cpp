@@ -20,13 +20,17 @@
 // ==========================================================
 
 #ifdef FREEIMAGE_USE_INTERNAL_LIBPNG
-#include "../3rdParty/ZLib/zlib.h"
+#   include "../3rdParty/ZLib/zlib.h"
 #else
-#include <zlib.h>
+#   include <zlib.h>
 #endif
 #include "FreeImage.h"
 #include "Utilities.h"
-#include "../3rdParty/ZLib/zutil.h"	/* must be the last header because of error C3163 in VS2008 (_vsnprintf defined in stdio.h) */
+#ifdef FREEIMAGE_USE_INTERNAL_LIBPNG
+#   include "../3rdParty/ZLib/zutil.h"	/* must be the last header because of error C3163 in VS2008 (_vsnprintf defined in stdio.h) */
+#else
+#	include "zlib_oscode.h"
+#endif
 
 /**
 Compresses a source buffer into a target buffer, using the ZLib library. 
