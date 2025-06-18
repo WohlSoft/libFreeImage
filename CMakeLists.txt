@@ -321,6 +321,9 @@ if(NOT FREEIMAGE_USE_SYSTEM_ZLIB)
     )
 
     set(FREEIMAGE_ZLIB_INCLUDE "Source/3rdParty/ZLib")
+elseif(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/zconf.h")
+    # Remove this to avoid build ruining
+    file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/include/zconf.h")
 endif()
 
 if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
@@ -572,6 +575,11 @@ if(FREEIMAGE_ENABLE_JPEG AND NOT FREEIMAGE_USE_SYSTEM_LIBJPEG)
     )
 
     set(FREEIMAGE_JPEG_INCLUDE "Source/3rdParty/LibJPEG")
+endif()
+
+if(FREEIMAGE_USE_SYSTEM_LIBJPEG AND EXISTS "${CMAKE_CURRENT_BINARY_DIR}/include/jconfig.h")
+    # Remove this to avoid build ruining
+    file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/include/jconfig.h")
 endif()
 
 if(WIN32)
