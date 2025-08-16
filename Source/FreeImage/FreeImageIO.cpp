@@ -67,22 +67,29 @@ _MemoryReadProc(void *buffer, unsigned size, unsigned count, fi_handle handle) {
 
 	FIMEMORYHEADER *mem_header = (FIMEMORYHEADER*)(((FIMEMORY*)handle)->data);
 
-	for(x = 0; x < count; x++) {
-		long remaining_bytes = mem_header->file_length - mem_header->current_position;
-		//if there isn't size bytes left to read, set pos to eof and return a short count
-		if( remaining_bytes < (long)size ) {
-			if(remaining_bytes > 0) {
-				memcpy( buffer, (char *)mem_header->data + mem_header->current_position, remaining_bytes );
-			}
-			mem_header->current_position = mem_header->file_length;
-			break;
+	long remaining_bytes = mem_header->file_length - mem_header->current_position;
+	//if there isn't size bytes left to read, set pos to eof and return a short count
+	if( remaining_bytes < (long)(size * count) ) {
+		if(remaining_bytes > 0) {
+			memcpy( buffer, (char *)mem_header->data + mem_header->current_position, remaining_bytes );
 		}
-		//copy size bytes count times
-		memcpy( buffer, (char *)mem_header->data + mem_header->current_position, size );
-		mem_header->current_position += size;
-		buffer = (char *)buffer + size;
+		else
+			remaining_bytes = 0;
+
+		mem_header->current_position = mem_header->file_length;
+
+		return remaining_bytes / size;
 	}
-	return x;
+
+
+	//otherwise, just copy!
+	long to_read = size * count;
+
+	memcpy( buffer, (char *)mem_header->data + mem_header->current_position, to_read );
+
+	mem_header->current_position += to_read;
+
+	return count;
 }
 
 unsigned DLL_CALLCONV 
