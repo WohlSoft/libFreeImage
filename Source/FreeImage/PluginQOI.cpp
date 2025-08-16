@@ -499,7 +499,7 @@ Load(FreeImageIO *io, fi_handle handle, int /*page*/, int flags, void * /*data*/
 static BOOL DLL_CALLCONV
 Save(FreeImageIO *io, FIBITMAP *dib, fi_handle handle, int /*page*/, int flags, void * /*data*/)
 {
-	if ((dib) && (handle) && FreeImage_GetBPP(dib) == 32 && FreeImage_GetWidth(dib) == FreeImage_GetPitch(dib)) {
+	if ((dib) && (handle) && FreeImage_GetBPP(dib) == 32 && FreeImage_GetWidth(dib) * 4 == FreeImage_GetPitch(dib)) {
 		try {
 			qoi_desc _desc;
 
