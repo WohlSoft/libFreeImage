@@ -67,7 +67,7 @@ public :
 	PluginList();
 	~PluginList();
 
-	FREE_IMAGE_FORMAT AddNode(FI_InitProc proc, void *instance = NULL, const char *format = 0, const char *description = 0, const char *extension = 0, const char *regexpr = 0);
+	FREE_IMAGE_FORMAT AddNode(FREE_IMAGE_FORMAT format_id, FI_InitProc proc, void *instance = NULL, const char *format = 0, const char *description = 0, const char *extension = 0, const char *regexpr = 0);
 	PluginNode *FindNodeFromFormat(const char *format);
 	PluginNode *FindNodeFromMime(const char *mime);
 	PluginNode *FindNodeFromFIF(int node_id);
@@ -77,7 +77,6 @@ public :
 
 private :
 	std::map<int, PluginNode *> m_plugin_map;
-	int m_node_count;
 };
 
 // ==========================================================
@@ -138,6 +137,7 @@ void DLL_CALLCONV InitXPM(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitDDS(Plugin *plugin, int format_id);
 #endif
 void DLL_CALLCONV InitGIF(Plugin *plugin, int format_id);
+void DLL_CALLCONV InitQOI(Plugin *plugin, int format_id);
 #ifndef FREEIMAGE_LITE //Don't include those formats into "LITE" assembly
 void DLL_CALLCONV InitHDR(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitG3(Plugin *plugin, int format_id);
