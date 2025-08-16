@@ -137,6 +137,7 @@ void DLL_CALLCONV InitXPM(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitDDS(Plugin *plugin, int format_id);
 #endif
 void DLL_CALLCONV InitGIF(Plugin *plugin, int format_id);
+void DLL_CALLCONV InitQOI(Plugin *plugin, int format_id);
 #ifndef FREEIMAGE_LITE //Don't include those formats into "LITE" assembly
 void DLL_CALLCONV InitHDR(Plugin *plugin, int format_id);
 void DLL_CALLCONV InitG3(Plugin *plugin, int format_id);

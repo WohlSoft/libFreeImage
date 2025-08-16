@@ -431,11 +431,13 @@ FI_ENUM(FREE_IMAGE_FORMAT) {
 	FIF_PICT	= 33,
 	FIF_RAW		= 34,
 	FIF_WEBP	= 35,
-	FIF_JXR		= 36
+	FIF_JXR		= 36,
+	FIF_QOI		= 37,
 #else
 	FIF_PNG		= 2,
 	FIF_GIF		= 3,
-	FIF_JPEG	= 4
+	FIF_JPEG	= 4,
+	FIF_QOI		= 5,
 #endif
 	FIF_DYNLIB_START = 100,
 };

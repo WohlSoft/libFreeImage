@@ -254,6 +254,7 @@ FreeImage_Initialise(BOOL load_local_plugins_only) {
 			s_plugins->AddNode(FIF_ICO, InitICO);
 			s_plugins->AddNode(FIF_PNG, InitPNG);
 			s_plugins->AddNode(FIF_GIF, InitGIF);
+			s_plugins->AddNode(FIF_QOI, InitQOI);
 #if !defined(FREEIMAGE_LITE) || defined(FREEIMAGE_ENABLE_JPEG)
 			s_plugins->AddNode(FIF_JPEG, InitJPEG);
 #endif
