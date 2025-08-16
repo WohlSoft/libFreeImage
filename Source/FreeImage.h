@@ -434,6 +434,7 @@ FI_ENUM(FREE_IMAGE_FORMAT) {
 	FIF_GIF		= 3,
 	FIF_JPEG	= 4
 #endif
+	FIF_DYNLIB_START = 100,
 };
 
 /** Image type used in FreeImage.
