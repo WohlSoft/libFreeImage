@@ -133,6 +133,7 @@ typedef struct {
 #define QOI_MASK_2    0xc0 /* 11000000 */
 
 #define QOI_COLOR_HASH(C) (C.rgba.r*3 + C.rgba.g*5 + C.rgba.b*7 + C.rgba.a*11)
+#define QOI_COLOR_HASH_RGBQUAD(C) (C.rgbRed*3 + C.rgbGreen*5 + C.rgbBlue*7 + C.rgbReserved*11)
 #define QOI_MAGIC \
     (((unsigned int)'q') << 24 | ((unsigned int)'o') << 16 | \
      ((unsigned int)'i') <<  8 | ((unsigned int)'f'))
@@ -381,93 +382,120 @@ Load(FreeImageIO *io, fi_handle handle, int /*page*/, int flags, void * /*data*/
 		}
 
 		// qoi_decode: load pixel data (prep)
-		int buffer_len = io->read_proc(bytes, 1, BUF_SIZE, handle);
-		p = 0;
+		unsigned char *bytes_end = bytes + io->read_proc(bytes, 1, BUF_SIZE, handle);
+		unsigned char *bytes_stale = bytes + BUF_SIZE - 8;
+		unsigned char *read_ptr = bytes;
 
 		unsigned char *pixels;
 		int run = 0;
 
-		qoi_rgba_t index[64];
-		qoi_rgba_t px;
+		RGBQUAD index[64];
+		RGBQUAD px;
 
 		QOI_ZEROARR(index);
-		px.rgba.r = 0;
-		px.rgba.g = 0;
-		px.rgba.b = 0;
-		px.rgba.a = 255;
+		px.rgbRed = 0;
+		px.rgbGreen = 0;
+		px.rgbBlue = 0;
+		px.rgbReserved = 255;
+
+		auto* pixels_base = FreeImage_GetBits(dib);
+		auto pixels_stride = FreeImage_GetPitch(dib);
 
 		for (uint32_t row = 0; row < desc->height; row++) {
 			// load scanline into buffer
 
 			// get dest
-			unsigned char* pixels = FreeImage_GetScanLine(dib, desc->height - 1 - row);
+			RGBQUAD* pixels = reinterpret_cast<RGBQUAD*>(pixels_base + pixels_stride * (desc->height - 1 - row));
+			RGBQUAD* pixels_end = pixels + desc->width;
 
-			// decode scanline
-			for (int px_pos = 0; px_pos < desc->width * 4; px_pos += 4) {
-				if (run > 0) {
-					run--;
+			// apply an inter-line run first
+			if (run > 0) {
+				if (run > pixels_end - pixels) {
+					run -= pixels_end - pixels;
+
+					while (pixels < pixels_end) {
+						*(pixels++) = px;
+					}
 				}
 				else {
-					// if we're going to overrun bytes array, that's a bug!
-					if (p >= buffer_len) {
-						throw FI_MSG_ERROR_PARSING;
+					for (; run > 0; run--) {
+						*(pixels++) = px;
 					}
+				}
+			}
 
-					int b1 = bytes[p++];
+			// decode scanline
+			while (pixels < pixels_end) {
+				// if we're going to overrun bytes array, that's a bug!
+				if (read_ptr >= bytes_end) {
+					throw FI_MSG_ERROR_PARSING;
+				}
+				// refill buffer if we're in the last eight bytes
+				else if (read_ptr >= bytes_stale) {
+					memcpy(bytes, bytes_stale, 8);
+					bytes_end -= (BUF_SIZE - 8);
+					read_ptr -= (BUF_SIZE - 8);
 
-					if (b1 == QOI_OP_RGB) {
-						px.rgba.r = bytes[p++];
-						px.rgba.g = bytes[p++];
-						px.rgba.b = bytes[p++];
-					}
-					else if (b1 == QOI_OP_RGBA) {
-						px.rgba.r = bytes[p++];
-						px.rgba.g = bytes[p++];
-						px.rgba.b = bytes[p++];
-						px.rgba.a = bytes[p++];
-					}
-					else if ((b1 & QOI_MASK_2) == QOI_OP_INDEX) {
-						px = index[b1];
-					}
-					else if ((b1 & QOI_MASK_2) == QOI_OP_DIFF) {
-						px.rgba.r += ((b1 >> 4) & 0x03) - 2;
-						px.rgba.g += ((b1 >> 2) & 0x03) - 2;
-						px.rgba.b += ( b1       & 0x03) - 2;
-					}
-					else if ((b1 & QOI_MASK_2) == QOI_OP_LUMA) {
-						int b2 = bytes[p++];
-						int vg = (b1 & 0x3f) - 32;
-						px.rgba.r += vg - 8 + ((b2 >> 4) & 0x0f);
-						px.rgba.g += vg;
-						px.rgba.b += vg - 8 +  (b2       & 0x0f);
-					}
-					else if ((b1 & QOI_MASK_2) == QOI_OP_RUN) {
-						run = (b1 & 0x3f);
-					}
-
-					index[QOI_COLOR_HASH(px) & (64 - 1)] = px;
-
-					// refill buffer if we're in the last eight bytes
-					if (p >= BUF_SIZE - 8) {
-						memcpy(bytes, bytes + BUF_SIZE - 8, 8);
-						buffer_len -= (BUF_SIZE - 8);
-						p -= (BUF_SIZE - 8);
-
-						if (buffer_len == 8) {
-							buffer_len += io->read_proc(bytes + 8, 1, BUF_SIZE - 8, handle);
-						}
+					if (bytes_end == bytes + 8) {
+						bytes_end += io->read_proc(bytes + 8, 1, BUF_SIZE - 8, handle);
 					}
 				}
 
-				pixels[px_pos + FI_RGBA_RED] = px.rgba.r;
-				pixels[px_pos + FI_RGBA_GREEN] = px.rgba.g;
-				pixels[px_pos + FI_RGBA_BLUE] = px.rgba.b;
-				pixels[px_pos + FI_RGBA_ALPHA] = px.rgba.a;
+				int b1 = *(read_ptr++);
+
+				if (b1 == QOI_OP_RGB) {
+					px.rgbRed   = *(read_ptr++);
+					px.rgbGreen = *(read_ptr++);
+					px.rgbBlue  = *(read_ptr++);
+				}
+				else if (b1 == QOI_OP_RGBA) {
+					px.rgbRed      = *(read_ptr++);
+					px.rgbGreen    = *(read_ptr++);
+					px.rgbBlue     = *(read_ptr++);
+					px.rgbReserved = *(read_ptr++);
+				}
+				else if ((b1 & QOI_MASK_2) == QOI_OP_INDEX) {
+					px = index[b1];
+				}
+				else if ((b1 & QOI_MASK_2) == QOI_OP_DIFF) {
+					px.rgbRed   += ((b1 >> 4) & 0x03) - 2;
+					px.rgbGreen += ((b1 >> 2) & 0x03) - 2;
+					px.rgbBlue  += ( b1       & 0x03) - 2;
+				}
+				else if ((b1 & QOI_MASK_2) == QOI_OP_LUMA) {
+					int b2 = *(read_ptr++);
+					int vg = (b1 & 0x3f) - 32;
+					px.rgbRed   += vg - 8 + ((b2 >> 4) & 0x0f);
+					px.rgbGreen += vg;
+					px.rgbBlue  += vg - 8 +  (b2       & 0x0f);
+				}
+				else if ((b1 & QOI_MASK_2) == QOI_OP_RUN) {
+					run = (b1 & 0x3f) + 1; // add one because we will subtract one for this pixel below
+
+					if (run > pixels_end - pixels) {
+						run -= pixels_end - pixels;
+
+						while (pixels < pixels_end) {
+							*(pixels++) = px;
+						}
+					}
+					else {
+						for (; run > 0; run--) {
+							*(pixels++) = px;
+						}
+					}
+
+					continue;
+				}
+
+				index[QOI_COLOR_HASH_RGBQUAD(px) & (64 - 1)] = px;
+
+				*(pixels++) = px;
 			}
 		}
 
 		// if there aren't 8 bytes (padding) left, or the padding doesn't match, that's a bug!
-		if (p > buffer_len - 8 || memcmp(&bytes[p], qoi_padding, 8) != 0) {
+		if (read_ptr > bytes_end - 8 || memcmp(read_ptr, qoi_padding, 8) != 0) {
 			throw FI_MSG_ERROR_PARSING;
 		}
 
