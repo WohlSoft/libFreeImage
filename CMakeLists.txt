@@ -216,6 +216,7 @@ set(FREEIMAGE_SRC ${CMAKE_CURRENT_SOURCE_DIR}
     Source/FreeImage/PluginGIF.cpp
     Source/FreeImage/PluginICO.cpp
     Source/FreeImage/PluginPNG.cpp
+    Source/FreeImage/PluginQOI.cpp
     Source/FreeImage/Conversion.cpp
     Source/FreeImage/Conversion16_555.cpp
     Source/FreeImage/Conversion16_565.cpp

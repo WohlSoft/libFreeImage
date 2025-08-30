@@ -85,13 +85,20 @@ FreeImage_stricmp(const char *s1, const char *s2) {
 // =====================================================================
 
 PluginList::PluginList() :
-m_plugin_map(),
-m_node_count(0) {
-(void)m_node_count;
+m_plugin_map() {
 }
 
 FREE_IMAGE_FORMAT
-PluginList::AddNode(FI_InitProc init_proc, void *instance, const char *format, const char *description, const char *extension, const char *regexpr) {
+PluginList::AddNode(FREE_IMAGE_FORMAT format_id, FI_InitProc init_proc, void *instance, const char *format, const char *description, const char *extension, const char *regexpr) {
+	// find a format_id above all existing formats
+	if (format_id == FIF_DYNLIB_START) {
+		for (map<int, PluginNode *>::iterator i = m_plugin_map.begin(); i != m_plugin_map.end(); ++i) {
+			if (i->first >= format_id) {
+				format_id = (FREE_IMAGE_FORMAT)(i->first + 1);
+			}
+		}
+	}
+
 	if (init_proc != NULL) {
 		PluginNode *node = new(std::nothrow) PluginNode;
 		Plugin *plugin = new(std::nothrow) Plugin;
@@ -122,7 +129,7 @@ PluginList::AddNode(FI_InitProc init_proc, void *instance, const char *format, c
 		// add the node if it wasn't there already
 
 		if (the_format != NULL) {
-			node->m_id = (int)m_plugin_map.size();
+			node->m_id = (int)format_id;
 			node->m_instance = instance;
 			node->m_plugin = plugin;
 			node->m_format = format;
@@ -131,9 +138,9 @@ PluginList::AddNode(FI_InitProc init_proc, void *instance, const char *format, c
 			node->m_regexpr = regexpr;
 			node->m_enabled = TRUE;
 
-			m_plugin_map[(const int)m_plugin_map.size()] = node;
+			m_plugin_map[format_id] = node;
 
-			return (FREE_IMAGE_FORMAT)node->m_id;
+			return format_id;
 		}
 
 		// something went wrong while allocating the plugin... cleanup
@@ -243,52 +250,48 @@ FreeImage_Initialise(BOOL load_local_plugins_only) {
 			The order used to initialize internal plugins below MUST BE the same order
 			as the one used to define the FREE_IMAGE_FORMAT enum.
 			*/
-			s_plugins->AddNode(InitBMP);
-			s_plugins->AddNode(InitICO);
+			s_plugins->AddNode(FIF_BMP, InitBMP);
+			s_plugins->AddNode(FIF_ICO, InitICO);
+			s_plugins->AddNode(FIF_PNG, InitPNG);
+			s_plugins->AddNode(FIF_GIF, InitGIF);
+			s_plugins->AddNode(FIF_QOI, InitQOI);
+#if !defined(FREEIMAGE_LITE) || defined(FREEIMAGE_ENABLE_JPEG)
+			s_plugins->AddNode(FIF_JPEG, InitJPEG);
+#endif
 #ifndef FREEIMAGE_LITE //Don't include those fomrmats into "LITE" assembly
-			s_plugins->AddNode(InitJPEG);
-			s_plugins->AddNode(InitJNG);
-			s_plugins->AddNode(InitKOALA);
-			s_plugins->AddNode(InitIFF);
-			s_plugins->AddNode(InitMNG);
-			s_plugins->AddNode(InitPNM, NULL, "PBM", "Portable Bitmap (ASCII)", "pbm", "^P1");
-			s_plugins->AddNode(InitPNM, NULL, "PBMRAW", "Portable Bitmap (RAW)", "pbm", "^P4");
-			s_plugins->AddNode(InitPCD);
-			s_plugins->AddNode(InitPCX);
-			s_plugins->AddNode(InitPNM, NULL, "PGM", "Portable Greymap (ASCII)", "pgm", "^P2");
-			s_plugins->AddNode(InitPNM, NULL, "PGMRAW", "Portable Greymap (RAW)", "pgm", "^P5");
-#endif
-			s_plugins->AddNode(InitPNG);
-#ifndef FREEIMAGE_LITE
-			s_plugins->AddNode(InitPNM, NULL, "PPM", "Portable Pixelmap (ASCII)", "ppm", "^P3");
-			s_plugins->AddNode(InitPNM, NULL, "PPMRAW", "Portable Pixelmap (RAW)", "ppm", "^P6");
-			s_plugins->AddNode(InitRAS);
-			s_plugins->AddNode(InitTARGA);
-			s_plugins->AddNode(InitTIFF);
-			s_plugins->AddNode(InitWBMP);
-			s_plugins->AddNode(InitPSD);
-			s_plugins->AddNode(InitCUT);
-			s_plugins->AddNode(InitXBM);
-			s_plugins->AddNode(InitXPM);
-			s_plugins->AddNode(InitDDS);
-#endif
-			s_plugins->AddNode(InitGIF);
-#if defined(FREEIMAGE_LITE) && defined(FREEIMAGE_ENABLE_JPEG)
-			s_plugins->AddNode(InitJPEG);
-#endif
-#ifndef FREEIMAGE_LITE
-			s_plugins->AddNode(InitHDR);
-			s_plugins->AddNode(InitG3);
-			s_plugins->AddNode(InitSGI);
-			s_plugins->AddNode(InitEXR);
-			s_plugins->AddNode(InitJ2K);
-			s_plugins->AddNode(InitJP2);
-			s_plugins->AddNode(InitPFM);
-			s_plugins->AddNode(InitPICT);
-			s_plugins->AddNode(InitRAW);
-			s_plugins->AddNode(InitWEBP);
+			s_plugins->AddNode(FIF_JNG, InitJNG);
+			s_plugins->AddNode(FIF_KOALA, InitKOALA);
+			s_plugins->AddNode(FIF_IFF, InitIFF);
+			s_plugins->AddNode(FIF_MNG, InitMNG);
+			s_plugins->AddNode(FIF_PBM, InitPNM, NULL, "PBM", "Portable Bitmap (ASCII)", "pbm", "^P1");
+			s_plugins->AddNode(FIF_PBMRAW, InitPNM, NULL, "PBMRAW", "Portable Bitmap (RAW)", "pbm", "^P4");
+			s_plugins->AddNode(FIF_PCD, InitPCD);
+			s_plugins->AddNode(FIF_PCX, InitPCX);
+			s_plugins->AddNode(FIF_PGM, InitPNM, NULL, "PGM", "Portable Greymap (ASCII)", "pgm", "^P2");
+			s_plugins->AddNode(FIF_PGMRAW, InitPNM, NULL, "PGMRAW", "Portable Greymap (RAW)", "pgm", "^P5");
+			s_plugins->AddNode(FIF_PPM, InitPNM, NULL, "PPM", "Portable Pixelmap (ASCII)", "ppm", "^P3");
+			s_plugins->AddNode(FIF_PPMRAW, InitPNM, NULL, "PPMRAW", "Portable Pixelmap (RAW)", "ppm", "^P6");
+			s_plugins->AddNode(FIF_RAS, InitRAS);
+			s_plugins->AddNode(FIF_TARGA, InitTARGA);
+			s_plugins->AddNode(FIF_TIFF, InitTIFF);
+			s_plugins->AddNode(FIF_WBMP, InitWBMP);
+			s_plugins->AddNode(FIF_PSD, InitPSD);
+			s_plugins->AddNode(FIF_CUT, InitCUT);
+			s_plugins->AddNode(FIF_XBM, InitXBM);
+			s_plugins->AddNode(FIF_XPM, InitXPM);
+			s_plugins->AddNode(FIF_DDS, InitDDS);
+			s_plugins->AddNode(FIF_HDR, InitHDR);
+			s_plugins->AddNode(FIF_FAXG3, InitG3);
+			s_plugins->AddNode(FIF_SGI, InitSGI);
+			s_plugins->AddNode(FIF_EXR, InitEXR);
+			s_plugins->AddNode(FIF_J2K, InitJ2K);
+			s_plugins->AddNode(FIF_JP2, InitJP2);
+			s_plugins->AddNode(FIF_PFM, InitPFM);
+			s_plugins->AddNode(FIF_PICT, InitPICT);
+			s_plugins->AddNode(FIF_RAW, InitRAW);
+			s_plugins->AddNode(FIF_WEBP, InitWEBP);
 #	if !(defined(_MSC_VER) && (_MSC_VER <= 1310))
-			s_plugins->AddNode(InitJXR);
+			s_plugins->AddNode(FIF_JXR, InitJXR);
 #	endif // unsupported by MS Visual Studio 2003 !!!
 #endif
 			// external plugin initialization
@@ -334,7 +337,7 @@ FreeImage_Initialise(BOOL load_local_plugins_only) {
 								FARPROC proc_address = GetProcAddress(instance, "_Init@8");
 
 								if (proc_address != NULL) {
-									s_plugins->AddNode((FI_InitProc)proc_address, (void *)instance);
+									s_plugins->AddNode(FIF_DYNLIB_START, (FI_InitProc)proc_address, (void *)instance);
 								} else {
 									FreeLibrary(instance);
 								}
@@ -542,7 +545,7 @@ FreeImage_SaveU(FREE_IMAGE_FORMAT fif, FIBITMAP *dib, const wchar_t *filename, i
 
 FREE_IMAGE_FORMAT DLL_CALLCONV
 FreeImage_RegisterLocalPlugin(FI_InitProc proc_address, const char *format, const char *description, const char *extension, const char *regexpr) {
-    return s_plugins->AddNode(proc_address, NULL, format, description, extension, regexpr);
+    return s_plugins->AddNode(FIF_DYNLIB_START, proc_address, NULL, format, description, extension, regexpr);
 }
 
 #if defined(_WIN32) && !defined(__MINGW32__)
@@ -554,7 +557,7 @@ FreeImage_RegisterExternalPlugin(const char *path, const char *format, const cha
 		if (instance != NULL) {
 			FARPROC proc_address = GetProcAddress(instance, "_Init@8");
 
-			FREE_IMAGE_FORMAT result = s_plugins->AddNode((FI_InitProc)proc_address, (void *)instance, format, description, extension, regexpr);
+			FREE_IMAGE_FORMAT result = s_plugins->AddNode(FIF_DYNLIB_START, (FI_InitProc)proc_address, (void *)instance, format, description, extension, regexpr);
 
 			if (result == FIF_UNKNOWN)
 				FreeLibrary(instance);
