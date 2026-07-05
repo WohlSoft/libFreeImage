@@ -30,12 +30,23 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
     set(EMSCRIPTEN 1)
 endif()
 
+# Define iOS platform markers if they are missing (at some old CMake toolchains)
+if(${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
+    if(NOT DEFINED IOS)
+        set(IOS TRUE)
+    endif()
+
+    if(NOT DEFINED PLATFORM_IOS)
+        set(PLATFORM_IOS TRUE)
+    endif()
+endif()
+
 list(APPEND FreeImage_Defs
     "-DFREEIMAGE_BUILD"
 )
 
 set(FREEIMAGE_SHARED_DEFAULT ON)
-if(VITA OR PSP OR NINTENDO_DS OR NINTENDO_3DS OR NINTENDO_WII OR NINTENDO_WIIU OR NINTENDO_SWITCH)
+if(VITA OR PSP OR IOS OR NINTENDO_DS OR NINTENDO_3DS OR NINTENDO_WII OR NINTENDO_WIIU OR NINTENDO_SWITCH)
     set(FREEIMAGE_SHARED_DEFAULT OFF)
 endif()
 
@@ -349,7 +360,7 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
                 set(PNG_ARM_NEON_POSSIBLE_VALUES on off)
                 set(PNG_ARM_NEON "on") # Force this on for PS Vita to build with optimizations.
                 set(PNG_ARM_NEON_NO_CACHE TRUE)
-            elseif(APPLE) # TODO: Fix the Apple ARM support
+            elseif(APPLE AND NOT IOS) # TODO: Fix the Apple ARM support
                 set(PNG_ARM_NEON_POSSIBLE_VALUES check on off)
                 set(PNG_ARM_NEON "off") # Force disable NEON on Apple, because of failures
                 set(PNG_ARM_NEON_NO_CACHE TRUE)
