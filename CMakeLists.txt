@@ -440,10 +440,10 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
                     Source/3rdParty/LibPNG/intel/intel_init.c
                     Source/3rdParty/LibPNG/intel/filter_sse2_intrinsics.c)
                 if(${PNG_INTEL_SSE} STREQUAL "on")
-                    list(APPEND FreeImage_Defs PNG_INTEL_SSE_OPT=1)
+                    list(APPEND FreeImage_Defs -DPNG_INTEL_SSE_OPT=1)
                 endif()
             else()
-                list(APPEND FreeImage_Defs PNG_INTEL_SSE_OPT=0)
+                list(APPEND FreeImage_Defs -DPNG_INTEL_SSE_OPT=0)
             endif()
         endif()
 
@@ -463,13 +463,14 @@ if(NOT FREEIMAGE_USE_SYSTEM_LIBPNG)
                     Source/3rdParty/LibPNG/mips/mips_init.c
                     Source/3rdParty/LibPNG/mips/filter_msa_intrinsics.c)
                 if(${PNG_MIPS_MSA} STREQUAL "on")
-                    list(APPEND FreeImage_Defs PNG_MIPS_MSA_OPT=2)
+                    list(APPEND FreeImage_Defs -DPNG_MIPS_MSA_OPT=2)
                 endif()
             else()
-                list(APPEND FreeImage_Defs PNG_MIPS_MSA_OPT=0)
+                list(APPEND FreeImage_Defs -DPNG_MIPS_MSA_OPT=0)
             endif()
         endif()
-
+    else()
+        list(APPEND FreeImage_Defs -DPNG_ARM_NEON_OPT=0 -DPNG_INTEL_SSE_OPT=0 -DPNG_POWERPC_VSX_OPT=0)
     endif(PNG_HARDWARE_OPTIMIZATIONS)
 
     list(APPEND FREEIMAGE_SRC
