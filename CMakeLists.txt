@@ -26,11 +26,16 @@ list(APPEND FreeImage_Defs
     -DFREEIMAGE_LITE
 )
 
+# In order to support the Xcode "new build system"
+if(POLICY CMP0114)
+    cmake_policy(SET CMP0114 NEW)
+endif()
+
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
     set(EMSCRIPTEN 1)
 endif()
 
-# Define iOS platform markers if they are missing (at some old CMake toolchains)
+# Define iOS/tvOS/visionOS/watchOS platform markers if they are missing (at some old CMake toolchains)
 if(${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
     if(NOT DEFINED IOS)
         set(IOS TRUE)
@@ -39,6 +44,26 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
     if(NOT DEFINED PLATFORM_IOS)
         set(PLATFORM_IOS TRUE)
     endif()
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "tvOS")
+    if(NOT DEFINED TVOS)
+        set(TVOS TRUE)
+    endif()
+
+    if(NOT DEFINED PLATFORM_TVOS)
+        set(PLATFORM_TVOS TRUE)
+    endif()
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "watchOS")
+    if(NOT DEFINED WATCHOS)
+        set(WATCHOS TRUE)
+    endif()
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "visionOS")
+    if(NOT DEFINED VISIONOS)
+        set(VISIONOS TRUE)
+    endif()
+elseif(APPLE AND NOT IOS AND NOT TVOS AND NOT VISIONOS AND NOT WATCHOS)
+    if(NOT DEFINED MACOS)
+        set(MACOS 1)
+    endif()
 endif()
 
 list(APPEND FreeImage_Defs
@@ -46,7 +71,7 @@ list(APPEND FreeImage_Defs
 )
 
 set(FREEIMAGE_SHARED_DEFAULT ON)
-if(VITA OR PSP OR IOS OR NINTENDO_DS OR NINTENDO_3DS OR NINTENDO_WII OR NINTENDO_WIIU OR NINTENDO_SWITCH)
+if(VITA OR PSP OR IOS OR TVOS OR WATCHOS OR VISIONOS OR NINTENDO_DS OR NINTENDO_3DS OR NINTENDO_WII OR NINTENDO_WIIU OR NINTENDO_SWITCH)
     set(FREEIMAGE_SHARED_DEFAULT OFF)
 endif()
 
